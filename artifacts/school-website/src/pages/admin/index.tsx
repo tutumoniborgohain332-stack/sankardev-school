@@ -2,7 +2,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { useGetMe, useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { LayoutDashboard, Users, UserSquare2, Image as ImageIcon, FileText, UserPlus, LogOut, Loader2 } from "lucide-react";
+import { LayoutDashboard, Users, UserSquare2, Image as ImageIcon, FileText, UserPlus, LogOut, Loader2, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import Dashboard from "./dashboard";
 import StudentsAdmin from "./students";
@@ -10,6 +10,7 @@ import StaffAdmin from "./staff-admin";
 import GalleryAdmin from "./gallery-admin";
 import NewsAdmin from "./news-admin";
 import AdmissionsAdmin from "./admissions-admin";
+import ResultsAdmin from "./results-admin";
 import { useEffect } from "react";
 
 export default function AdminShell() {
@@ -44,6 +45,7 @@ export default function AdminShell() {
     { label: "Gallery", href: "/admin/gallery", icon: ImageIcon },
     { label: "News", href: "/admin/news", icon: FileText },
     { label: "Admissions", href: "/admin/admissions", icon: UserPlus },
+    { label: "Results", href: "/admin/results", icon: Award },
   ];
 
   return (
@@ -99,6 +101,7 @@ export default function AdminShell() {
             <Route path="/admin/gallery" component={GalleryAdmin} />
             <Route path="/admin/news" component={NewsAdmin} />
             <Route path="/admin/admissions" component={AdmissionsAdmin} />
+            <Route path="/admin/results" component={ResultsAdmin} />
           </Switch>
         </div>
       </main>

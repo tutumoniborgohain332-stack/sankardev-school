@@ -71,6 +71,7 @@ export function Header() {
             <Link href="/gallery" className="hover:text-accent transition-colors">Gallery</Link>
             <Link href="/staff" className="hover:text-accent transition-colors">Staff</Link>
             <Link href="/news" className="hover:text-accent transition-colors">News</Link>
+            <Link href="/results" className="hover:text-accent transition-colors">Results</Link>
             <Link href="/contact" className="hover:text-accent transition-colors">Contact</Link>
             {!user && (
               <Button asChild variant="default" className="font-bold ml-2">
@@ -96,6 +97,7 @@ export function Header() {
           <Link href="/gallery" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Gallery</Link>
           <Link href="/staff" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Staff</Link>
           <Link href="/news" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>News</Link>
+          <Link href="/results" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Results</Link>
           <Link href="/contact" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Contact</Link>
         </div>
       )}

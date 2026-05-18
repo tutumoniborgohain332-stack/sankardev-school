@@ -23,6 +23,8 @@ tags:
     description: Admission applications
   - name: stats
     description: Dashboard statistics
+  - name: results
+    description: Exam results
 
 paths:
   /healthz:
@@ -505,6 +507,93 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ClassStat"
+
+  /results:
+    get:
+      operationId: listResults
+      tags: [results]
+      summary: List or search exam results (public)
+      parameters:
+        - name: rollNumber
+          in: query
+          schema:
+            type: string
+        - name: className
+          in: query
+          schema:
+            type: string
+        - name: examType
+          in: query
+          schema:
+            type: string
+        - name: academicYear
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExamResult"
+    post:
+      operationId: createResult
+      tags: [results]
+      summary: Create an exam result (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamResultInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamResult"
+
+  /results/{id}:
+    patch:
+      operationId: updateResult
+      tags: [results]
+      summary: Update an exam result (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamResultInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamResult"
+    delete:
+      operationId: deleteResult
+      tags: [results]
+      summary: Delete an exam result (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
 
 components:
   schemas:
@@ -1008,3 +1097,94 @@ components:
           type: string
         count:
           type: integer
+
+    SubjectResult:
+      type: object
+      required: [subject, maxMarks, marksObtained, grade]
+      properties:
+        subject:
+          type: string
+        maxMarks:
+          type: integer
+        marksObtained:
+          type: integer
+        grade:
+          type: string
+
+    ExamResult:
+      type: object
+      required: [id, rollNumber, studentName, className, examType, academicYear, subjects, totalMarks, marksObtained, percentage, result, publishedAt]
+      properties:
+        id:
+          type: integer
+        rollNumber:
+          type: string
+        studentName:
+          type: string
+        className:
+          type: string
+        section:
+          type: ["string", "null"]
+        examType:
+          type: string
+          enum: [Mid-term, Final, Unit-Test]
+        academicYear:
+          type: string
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectResult"
+        totalMarks:
+          type: integer
+        marksObtained:
+          type: integer
+        percentage:
+          type: string
+        result:
+          type: string
+          enum: [Pass, Fail]
+        rank:
+          type: ["integer", "null"]
+        remarks:
+          type: ["string", "null"]
+        publishedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    ExamResultInput:
+      type: object
+      required: [rollNumber, studentName, className, examType, academicYear, subjects, totalMarks, marksObtained, percentage, result]
+      properties:
+        rollNumber:
+          type: string
+        studentName:
+          type: string
+        className:
+          type: string
+        section:
+          type: string
+        examType:
+          type: string
+          enum: [Mid-term, Final, Unit-Test]
+        academicYear:
+          type: string
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectResult"
+        totalMarks:
+          type: integer
+        marksObtained:
+          type: integer
+        percentage:
+          type: string
+        result:
+          type: string
+          enum: [Pass, Fail]
+        rank:
+          type: integer
+        remarks:
+          type: string

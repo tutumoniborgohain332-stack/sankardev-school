@@ -607,3 +607,125 @@ export const GetClassStatsResponseItem = zod.object({
 export const GetClassStatsResponse = zod.array(GetClassStatsResponseItem)
 
 
+/**
+ * @summary List or search exam results (public)
+ */
+export const ListResultsQueryParams = zod.object({
+  "rollNumber": zod.coerce.string().optional(),
+  "className": zod.coerce.string().optional(),
+  "examType": zod.coerce.string().optional(),
+  "academicYear": zod.coerce.string().optional()
+})
+
+export const ListResultsResponseItem = zod.object({
+  "id": zod.number(),
+  "rollNumber": zod.string(),
+  "studentName": zod.string(),
+  "className": zod.string(),
+  "section": zod.string().nullish(),
+  "examType": zod.enum(['Mid-term', 'Final', 'Unit-Test']),
+  "academicYear": zod.string(),
+  "subjects": zod.array(zod.object({
+  "subject": zod.string(),
+  "maxMarks": zod.number(),
+  "marksObtained": zod.number(),
+  "grade": zod.string()
+})),
+  "totalMarks": zod.number(),
+  "marksObtained": zod.number(),
+  "percentage": zod.string(),
+  "result": zod.enum(['Pass', 'Fail']),
+  "rank": zod.number().nullish(),
+  "remarks": zod.string().nullish(),
+  "publishedAt": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListResultsResponse = zod.array(ListResultsResponseItem)
+
+
+/**
+ * @summary Create an exam result (admin only)
+ */
+export const CreateResultBody = zod.object({
+  "rollNumber": zod.string(),
+  "studentName": zod.string(),
+  "className": zod.string(),
+  "section": zod.string().optional(),
+  "examType": zod.enum(['Mid-term', 'Final', 'Unit-Test']),
+  "academicYear": zod.string(),
+  "subjects": zod.array(zod.object({
+  "subject": zod.string(),
+  "maxMarks": zod.number(),
+  "marksObtained": zod.number(),
+  "grade": zod.string()
+})),
+  "totalMarks": zod.number(),
+  "marksObtained": zod.number(),
+  "percentage": zod.string(),
+  "result": zod.enum(['Pass', 'Fail']),
+  "rank": zod.number().optional(),
+  "remarks": zod.string().optional()
+})
+
+
+/**
+ * @summary Update an exam result (admin only)
+ */
+export const UpdateResultParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateResultBody = zod.object({
+  "rollNumber": zod.string(),
+  "studentName": zod.string(),
+  "className": zod.string(),
+  "section": zod.string().optional(),
+  "examType": zod.enum(['Mid-term', 'Final', 'Unit-Test']),
+  "academicYear": zod.string(),
+  "subjects": zod.array(zod.object({
+  "subject": zod.string(),
+  "maxMarks": zod.number(),
+  "marksObtained": zod.number(),
+  "grade": zod.string()
+})),
+  "totalMarks": zod.number(),
+  "marksObtained": zod.number(),
+  "percentage": zod.string(),
+  "result": zod.enum(['Pass', 'Fail']),
+  "rank": zod.number().optional(),
+  "remarks": zod.string().optional()
+})
+
+export const UpdateResultResponse = zod.object({
+  "id": zod.number(),
+  "rollNumber": zod.string(),
+  "studentName": zod.string(),
+  "className": zod.string(),
+  "section": zod.string().nullish(),
+  "examType": zod.enum(['Mid-term', 'Final', 'Unit-Test']),
+  "academicYear": zod.string(),
+  "subjects": zod.array(zod.object({
+  "subject": zod.string(),
+  "maxMarks": zod.number(),
+  "marksObtained": zod.number(),
+  "grade": zod.string()
+})),
+  "totalMarks": zod.number(),
+  "marksObtained": zod.number(),
+  "percentage": zod.string(),
+  "result": zod.enum(['Pass', 'Fail']),
+  "rank": zod.number().nullish(),
+  "remarks": zod.string().nullish(),
+  "publishedAt": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Delete an exam result (admin only)
+ */
+export const DeleteResultParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+

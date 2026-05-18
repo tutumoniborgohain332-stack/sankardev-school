@@ -357,6 +357,85 @@ export interface ClassStat {
   count: number;
 }
 
+export interface SubjectResult {
+  subject: string;
+  maxMarks: number;
+  marksObtained: number;
+  grade: string;
+}
+
+export type ExamResultExamType = typeof ExamResultExamType[keyof typeof ExamResultExamType];
+
+
+export const ExamResultExamType = {
+  'Mid-term': 'Mid-term',
+  Final: 'Final',
+  'Unit-Test': 'Unit-Test',
+} as const;
+
+export type ExamResultResult = typeof ExamResultResult[keyof typeof ExamResultResult];
+
+
+export const ExamResultResult = {
+  Pass: 'Pass',
+  Fail: 'Fail',
+} as const;
+
+export interface ExamResult {
+  id: number;
+  rollNumber: string;
+  studentName: string;
+  className: string;
+  /** @nullable */
+  section?: string | null;
+  examType: ExamResultExamType;
+  academicYear: string;
+  subjects: SubjectResult[];
+  totalMarks: number;
+  marksObtained: number;
+  percentage: string;
+  result: ExamResultResult;
+  /** @nullable */
+  rank?: number | null;
+  /** @nullable */
+  remarks?: string | null;
+  publishedAt: string;
+  createdAt?: string;
+}
+
+export type ExamResultInputExamType = typeof ExamResultInputExamType[keyof typeof ExamResultInputExamType];
+
+
+export const ExamResultInputExamType = {
+  'Mid-term': 'Mid-term',
+  Final: 'Final',
+  'Unit-Test': 'Unit-Test',
+} as const;
+
+export type ExamResultInputResult = typeof ExamResultInputResult[keyof typeof ExamResultInputResult];
+
+
+export const ExamResultInputResult = {
+  Pass: 'Pass',
+  Fail: 'Fail',
+} as const;
+
+export interface ExamResultInput {
+  rollNumber: string;
+  studentName: string;
+  className: string;
+  section?: string;
+  examType: ExamResultInputExamType;
+  academicYear: string;
+  subjects: SubjectResult[];
+  totalMarks: number;
+  marksObtained: number;
+  percentage: string;
+  result: ExamResultInputResult;
+  rank?: number;
+  remarks?: string;
+}
+
 export type ListStudentsParams = {
 class?: string;
 search?: string;
@@ -391,4 +470,11 @@ export const ListAdmissionsStatus = {
   approved: 'approved',
   rejected: 'rejected',
 } as const;
+
+export type ListResultsParams = {
+rollNumber?: string;
+className?: string;
+examType?: string;
+academicYear?: string;
+};
 

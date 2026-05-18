@@ -16,6 +16,7 @@ import LoginStaff from "@/pages/login-staff";
 import PortalStudent from "@/pages/portal-student";
 import PortalStaff from "@/pages/portal-staff";
 import AdminPage from "@/pages/admin/index";
+import Results from "@/pages/results";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/login/staff" component={LoginStaff} />
       <Route path="/portal/student" component={PortalStudent} />
       <Route path="/portal/staff" component={PortalStaff} />
+      <Route path="/results" component={Results} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/admin/:rest*" component={AdminPage} />
       <Route component={NotFound} />

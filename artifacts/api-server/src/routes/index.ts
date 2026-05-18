@@ -7,6 +7,7 @@ import galleryRouter from "./gallery";
 import newsRouter from "./news";
 import admissionsRouter from "./admissions";
 import statsRouter from "./stats";
+import resultsRouter from "./results";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(galleryRouter);
 router.use(newsRouter);
 router.use(admissionsRouter);
 router.use(statsRouter);
+router.use(resultsRouter);
 
 export default router;
