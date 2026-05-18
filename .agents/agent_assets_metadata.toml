@@ -1,0 +1,38 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "WbEu5AVgp7Dt9asQtc8je"
+uri = "file://artifacts/school-website/public/images/hero-1.png"
+type = "image"
+title = "School building courtyard"
+
+[[generated]]
+id = "-FTuTFHFFAqSAkziNWLCc"
+uri = "file://artifacts/school-website/public/images/hero-2.png"
+type = "image"
+title = "Students studying in classroom"
+
+[[generated]]
+id = "6B1L6SEUzFl1AJ5hv6O12"
+uri = "file://artifacts/school-website/public/images/hero-3.png"
+type = "image"
+title = "Cultural Bihu dance event"
+
+[[generated]]
+id = "xHx_lkfyPhUbcvwTNpBQX"
+uri = "file://artifacts/school-website/public/images/hero-4.png"
+type = "image"
+title = "Students playing sports"
+
+[[generated]]
+id = "6EDA8dpRxAQx1BsU0Eakh"
+uri = "file://artifacts/school-website/public/images/gallery-1.png"
+type = "image"
+title = "Library with students"
+
+[[generated]]
+id = "rxYA99EqjyG40l93-wwXh"
+uri = "file://artifacts/school-website/public/images/gallery-2.png"
+type = "image"
+title = "Annual day celebration"
