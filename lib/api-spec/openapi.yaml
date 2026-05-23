@@ -889,6 +889,10 @@ components:
           type: string
         content:
           type: string
+        titleAssamese:
+          type: ["string", "null"]
+        contentAssamese:
+          type: ["string", "null"]
         category:
           type: ["string", "null"]
         isImportant:

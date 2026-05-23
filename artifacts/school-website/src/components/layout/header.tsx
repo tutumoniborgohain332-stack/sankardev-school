@@ -74,7 +74,7 @@ export function Header() {
             <Link href="/results" className="hover:text-accent transition-colors">Results</Link>
             <Link href="/contact" className="hover:text-accent transition-colors">Contact</Link>
             {!user && (
-              <Button asChild variant="default" className="font-bold ml-2">
+              <Button asChild variant="outline" className="font-bold ml-2 border-white text-white hover:bg-white hover:text-primary">
                 <Link href="/admission">Apply Now</Link>
               </Button>
             )}

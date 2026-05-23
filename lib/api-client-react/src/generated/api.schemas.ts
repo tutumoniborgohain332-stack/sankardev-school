@@ -204,6 +204,10 @@ export interface NewsItem {
   title: string;
   content: string;
   /** @nullable */
+  titleAssamese?: string | null;
+  /** @nullable */
+  contentAssamese?: string | null;
+  /** @nullable */
   category?: string | null;
   isImportant: boolean;
   publishedAt: string;

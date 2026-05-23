@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db, newsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { CreateNewsBody, UpdateNewsBody, UpdateNewsParams, DeleteNewsParams, ListNewsQueryParams } from "@workspace/api-zod";
+import { ensureBilingual } from "../lib/translate";
 
 const router = Router();
 
@@ -24,9 +25,13 @@ router.post("/news", async (req, res) => {
   const parsed = CreateNewsBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
+  const bilingual = await ensureBilingual(parsed.data.title, parsed.data.content);
+
   const [item] = await db.insert(newsTable).values({
-    title: parsed.data.title,
-    content: parsed.data.content,
+    title: bilingual.titleEn,
+    content: bilingual.contentEn,
+    titleAssamese: bilingual.titleAs,
+    contentAssamese: bilingual.contentAs,
     category: parsed.data.category ?? null,
     isImportant: parsed.data.isImportant ?? false,
   }).returning();
@@ -45,9 +50,22 @@ router.patch("/news/:id", async (req, res) => {
   const bodyParsed = UpdateNewsBody.safeParse(req.body);
   if (!bodyParsed.success) return res.status(400).json({ error: "Invalid input" });
 
+  let updateData: Partial<typeof newsTable.$inferInsert> = { ...bodyParsed.data };
+
+  if (bodyParsed.data.title || bodyParsed.data.content) {
+    const existing = await db.select().from(newsTable).where(eq(newsTable.id, paramParsed.data.id)).limit(1);
+    const currentTitle = bodyParsed.data.title ?? existing[0]?.title ?? "";
+    const currentContent = bodyParsed.data.content ?? existing[0]?.content ?? "";
+    const bilingual = await ensureBilingual(currentTitle, currentContent);
+    updateData.title = bilingual.titleEn;
+    updateData.content = bilingual.contentEn;
+    updateData.titleAssamese = bilingual.titleAs;
+    updateData.contentAssamese = bilingual.contentAs;
+  }
+
   const [item] = await db
     .update(newsTable)
-    .set(bodyParsed.data)
+    .set(updateData)
     .where(eq(newsTable.id, paramParsed.data.id))
     .returning();
 

@@ -6,6 +6,8 @@ export const newsTable = pgTable("news", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
+  titleAssamese: text("title_assamese"),
+  contentAssamese: text("content_assamese"),
   category: text("category"),
   isImportant: boolean("is_important").notNull().default(false),
   publishedAt: timestamp("published_at", { withTimezone: true }).notNull().defaultNow(),

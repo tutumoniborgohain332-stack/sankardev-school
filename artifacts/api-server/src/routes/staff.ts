@@ -1,9 +1,14 @@
 import { Router } from "express";
-import { db, staffTable } from "@workspace/db";
+import { db, staffTable, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { CreateStaffBody, UpdateStaffBody, UpdateStaffParams, DeleteStaffParams, GetStaffMemberParams } from "@workspace/api-zod";
+import crypto from "crypto";
 
 const router = Router();
+
+function hashPassword(password: string): string {
+  return crypto.createHash("sha256").update(password + "school_salt_2024").digest("hex");
+}
 
 router.get("/staff", async (req, res) => {
   const staff = await db.select().from(staffTable);
@@ -14,20 +19,38 @@ router.post("/staff", async (req, res) => {
   const parsed = CreateStaffBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
-  const { password, ...data } = parsed.data as typeof parsed.data & { password?: string };
+  const data = parsed.data as typeof parsed.data & { password?: string };
+  const { password, ...staffData } = data;
+
+  let userId: number | null = null;
+
+  if (staffData.username && password) {
+    const existingUser = await db.select().from(usersTable).where(eq(usersTable.username, staffData.username)).limit(1);
+    if (existingUser.length > 0) {
+      return res.status(409).json({ error: "Username already exists" });
+    }
+    const [newUser] = await db.insert(usersTable).values({
+      username: staffData.username,
+      passwordHash: hashPassword(password),
+      role: "staff",
+      name: staffData.name,
+    }).returning();
+    userId = newUser.id;
+  }
 
   const [member] = await db.insert(staffTable).values({
-    name: data.name,
-    designation: data.designation,
-    department: data.department,
-    qualification: data.qualification ?? null,
-    subject: data.subject ?? null,
-    phone: data.phone ?? null,
-    email: data.email ?? null,
-    joinDate: data.joinDate,
-    photoUrl: data.photoUrl ?? null,
-    username: data.username ?? null,
-    isHeadmaster: data.isHeadmaster ?? false,
+    name: staffData.name,
+    designation: staffData.designation,
+    department: staffData.department,
+    qualification: staffData.qualification ?? null,
+    subject: staffData.subject ?? null,
+    phone: staffData.phone ?? null,
+    email: staffData.email ?? null,
+    joinDate: staffData.joinDate,
+    photoUrl: staffData.photoUrl ?? null,
+    username: staffData.username ?? null,
+    isHeadmaster: staffData.isHeadmaster ?? false,
+    userId: userId,
   }).returning();
 
   return res.status(201).json({ ...member, isHeadmaster: member.isHeadmaster ?? false });

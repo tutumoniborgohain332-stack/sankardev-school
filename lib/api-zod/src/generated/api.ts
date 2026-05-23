@@ -357,6 +357,8 @@ export const ListNewsResponseItem = zod.object({
   "id": zod.number(),
   "title": zod.string(),
   "content": zod.string(),
+  "titleAssamese": zod.string().nullish(),
+  "contentAssamese": zod.string().nullish(),
   "category": zod.string().nullish(),
   "isImportant": zod.boolean(),
   "publishedAt": zod.string()
@@ -393,6 +395,8 @@ export const UpdateNewsResponse = zod.object({
   "id": zod.number(),
   "title": zod.string(),
   "content": zod.string(),
+  "titleAssamese": zod.string().nullish(),
+  "contentAssamese": zod.string().nullish(),
   "category": zod.string().nullish(),
   "isImportant": zod.boolean(),
   "publishedAt": zod.string()
