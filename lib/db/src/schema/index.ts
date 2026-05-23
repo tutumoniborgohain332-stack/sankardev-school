@@ -5,3 +5,4 @@ export * from "./gallery";
 export * from "./news";
 export * from "./admissions";
 export * from "./results";
+export * from "./attendance";
