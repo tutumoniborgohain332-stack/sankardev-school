@@ -7,8 +7,8 @@ import {
   useCreateStaff,
   useListStudents,
   useListAdmissions, useUpdateAdmissionStatus,
-  useGetAttendance, useMarkAttendanceBulk, useGetAttendanceReport,
-  getGetAttendanceQueryKey, getGetAttendanceReportQueryKey,
+  useGetAttendance, useMarkAttendanceBulk,
+  getGetAttendanceQueryKey,
   type AttendanceBulkInputRecordsItemStatus,
 } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
@@ -922,22 +922,27 @@ function AdmissionsTab({ toast, queryClient }: any) {
 const CLASSES = ["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"];
 const SECTIONS = ["A", "B", "C", "D"];
 
-function AttendanceTab({ user, toast, queryClient }: any) {
+const NO_SECTION = "_all";
+
+function AttendanceTab({ user, toast }: any) {
   const today = new Date().toISOString().split("T")[0];
   const [mode, setMode] = useState<"mark" | "report">("mark");
   const [selectedClass, setSelectedClass] = useState("");
-  const [selectedSection, setSelectedSection] = useState("");
+  const [selectedSection, setSelectedSection] = useState(NO_SECTION);
   const [selectedDate, setSelectedDate] = useState(today);
   const [reportMonth, setReportMonth] = useState(String(new Date().getMonth() + 1));
   const [reportYear, setReportYear] = useState(String(new Date().getFullYear()));
   const [attendanceMap, setAttendanceMap] = useState<Record<number, string>>({});
   const [saving, setSaving] = useState(false);
+  const [report, setReport] = useState<any>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
-  const attendanceParams = selectedClass && selectedDate
-    ? { date: selectedDate, className: selectedClass, section: selectedSection || undefined }
+  const sectionValue = selectedSection === NO_SECTION ? undefined : selectedSection;
+
+  const attendanceEnabled = !!(selectedClass && selectedDate);
+  const attendanceParams = attendanceEnabled
+    ? { date: selectedDate, className: selectedClass, section: sectionValue }
     : undefined;
-
-  const reportParams = { className: selectedClass, section: selectedSection || undefined, month: reportMonth, year: reportYear };
 
   const { data: students } = useListStudents(
     selectedClass ? { class: selectedClass } : {},
@@ -945,12 +950,7 @@ function AttendanceTab({ user, toast, queryClient }: any) {
 
   const { data: existingAttendance, refetch: refetchAttendance } = useGetAttendance(
     attendanceParams,
-    { query: { queryKey: getGetAttendanceQueryKey(attendanceParams), enabled: !!(selectedClass && selectedDate) } }
-  );
-
-  const { data: report, refetch: refetchReport } = useGetAttendanceReport(
-    reportParams,
-    { query: { queryKey: getGetAttendanceReportQueryKey(reportParams), enabled: false } }
+    { query: { queryKey: getGetAttendanceQueryKey(attendanceParams), enabled: attendanceEnabled } }
   );
 
   const markBulk = useMarkAttendanceBulk();
@@ -985,7 +985,7 @@ function AttendanceTab({ user, toast, queryClient }: any) {
         data: {
           date: selectedDate,
           className: selectedClass,
-          section: selectedSection || undefined,
+          section: sectionValue,
           markedBy: user.name,
           records: students.map((s: any) => ({ studentId: s.id, status: (attendanceMap[s.id] || "present") as AttendanceBulkInputRecordsItemStatus })),
         }
@@ -994,6 +994,20 @@ function AttendanceTab({ user, toast, queryClient }: any) {
       toast({ title: "Attendance saved!" });
     } catch { toast({ title: "Failed to save attendance", variant: "destructive" }); }
     finally { setSaving(false); }
+  };
+
+  const handleGenerateReport = async () => {
+    if (!selectedClass) { toast({ title: "Select a class first", variant: "destructive" }); return; }
+    setReportLoading(true);
+    setReport(null);
+    try {
+      const params = new URLSearchParams({ className: selectedClass, month: reportMonth, year: reportYear });
+      if (sectionValue) params.set("section", sectionValue);
+      const res = await fetch(`/api/attendance/report?${params.toString()}`);
+      if (!res.ok) throw new Error("Failed");
+      setReport(await res.json());
+    } catch { toast({ title: "Failed to generate report", variant: "destructive" }); }
+    finally { setReportLoading(false); }
   };
 
   const statusBadge = (status: string) => {
@@ -1036,7 +1050,7 @@ function AttendanceTab({ user, toast, queryClient }: any) {
               <Select value={selectedSection} onValueChange={setSelectedSection}>
                 <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="All" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Sections</SelectItem>
+                  <SelectItem value={NO_SECTION}>All Sections</SelectItem>
                   {SECTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -1066,7 +1080,9 @@ function AttendanceTab({ user, toast, queryClient }: any) {
             )}
             {mode === "report" && (
               <div className="flex items-end">
-                <Button onClick={() => refetchReport()} className="h-9 w-full text-sm" disabled={!selectedClass}>Generate Report</Button>
+                <Button onClick={handleGenerateReport} className="h-9 w-full text-sm" disabled={!selectedClass || reportLoading}>
+                  {reportLoading ? "Loading..." : "Generate Report"}
+                </Button>
               </div>
             )}
           </div>
