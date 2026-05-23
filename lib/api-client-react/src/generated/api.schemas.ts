@@ -407,6 +407,80 @@ export interface ExamResult {
   createdAt?: string;
 }
 
+export type AttendanceRecordStatus = typeof AttendanceRecordStatus[keyof typeof AttendanceRecordStatus];
+
+
+export const AttendanceRecordStatus = {
+  present: 'present',
+  absent: 'absent',
+  late: 'late',
+} as const;
+
+export interface AttendanceRecord {
+  id: number;
+  studentId: number;
+  /** @nullable */
+  studentName?: string | null;
+  /** @nullable */
+  rollNumber?: string | null;
+  date: string;
+  status: AttendanceRecordStatus;
+  className: string;
+  /** @nullable */
+  section?: string | null;
+  /** @nullable */
+  markedBy?: string | null;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export type AttendanceBulkInputRecordsItemStatus = typeof AttendanceBulkInputRecordsItemStatus[keyof typeof AttendanceBulkInputRecordsItemStatus];
+
+
+export const AttendanceBulkInputRecordsItemStatus = {
+  present: 'present',
+  absent: 'absent',
+  late: 'late',
+} as const;
+
+export type AttendanceBulkInputRecordsItem = {
+  studentId: number;
+  status: AttendanceBulkInputRecordsItemStatus;
+  remarks?: string;
+};
+
+export interface AttendanceBulkInput {
+  date: string;
+  className: string;
+  section?: string;
+  markedBy?: string;
+  records: AttendanceBulkInputRecordsItem[];
+}
+
+export type AttendanceReportStudentsItemDates = {[key: string]: string};
+
+export type AttendanceReportStudentsItem = {
+  studentId: number;
+  studentName: string;
+  rollNumber: string;
+  present: number;
+  absent: number;
+  late: number;
+  total: number;
+  dates: AttendanceReportStudentsItemDates;
+};
+
+export interface AttendanceReport {
+  className: string;
+  /** @nullable */
+  section?: string | null;
+  month: number;
+  year: number;
+  startDate: string;
+  endDate: string;
+  students: AttendanceReportStudentsItem[];
+}
+
 export type ExamResultInputExamType = typeof ExamResultInputExamType[keyof typeof ExamResultInputExamType];
 
 
@@ -480,5 +554,23 @@ rollNumber?: string;
 className?: string;
 examType?: string;
 academicYear?: string;
+};
+
+export type GetAttendanceParams = {
+date?: string;
+className?: string;
+section?: string;
+};
+
+export type MarkAttendanceBulk200 = {
+  ok: boolean;
+  count: number;
+};
+
+export type GetAttendanceReportParams = {
+className: string;
+section?: string;
+month: string;
+year: string;
 };
 

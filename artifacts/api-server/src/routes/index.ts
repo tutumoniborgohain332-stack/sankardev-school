@@ -8,6 +8,7 @@ import newsRouter from "./news";
 import admissionsRouter from "./admissions";
 import statsRouter from "./stats";
 import resultsRouter from "./results";
+import attendanceRouter from "./attendance";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(newsRouter);
 router.use(admissionsRouter);
 router.use(statsRouter);
 router.use(resultsRouter);
+router.use(attendanceRouter);
 
 export default router;

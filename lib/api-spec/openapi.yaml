@@ -25,6 +25,8 @@ tags:
     description: Dashboard statistics
   - name: results
     description: Exam results
+  - name: attendance
+    description: Student attendance
 
 paths:
   /healthz:
@@ -595,6 +597,107 @@ paths:
         "204":
           description: Deleted
 
+  /attendance:
+    get:
+      operationId: getAttendance
+      tags: [attendance]
+      summary: Get attendance records
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+        - name: className
+          in: query
+          schema:
+            type: string
+        - name: section
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+
+  /attendance/bulk:
+    post:
+      operationId: markAttendanceBulk
+      tags: [attendance]
+      summary: Mark attendance for a class on a date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceBulkInput"
+      responses:
+        "200":
+          description: Marked
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, count]
+                properties:
+                  ok:
+                    type: boolean
+                  count:
+                    type: integer
+
+  /attendance/report:
+    get:
+      operationId: getAttendanceReport
+      tags: [attendance]
+      summary: Get monthly attendance report
+      parameters:
+        - name: className
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: section
+          in: query
+          schema:
+            type: string
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Monthly attendance report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceReport"
+
+  /attendance/{id}:
+    delete:
+      operationId: deleteAttendance
+      tags: [attendance]
+      summary: Delete an attendance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
@@ -1157,6 +1260,99 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    AttendanceRecord:
+      type: object
+      required: [id, studentId, date, status, className]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: ["string", "null"]
+        rollNumber:
+          type: ["string", "null"]
+        date:
+          type: string
+        status:
+          type: string
+          enum: [present, absent, late]
+        className:
+          type: string
+        section:
+          type: ["string", "null"]
+        markedBy:
+          type: ["string", "null"]
+        remarks:
+          type: ["string", "null"]
+
+    AttendanceBulkInput:
+      type: object
+      required: [date, className, records]
+      properties:
+        date:
+          type: string
+        className:
+          type: string
+        section:
+          type: string
+        markedBy:
+          type: string
+        records:
+          type: array
+          items:
+            type: object
+            required: [studentId, status]
+            properties:
+              studentId:
+                type: integer
+              status:
+                type: string
+                enum: [present, absent, late]
+              remarks:
+                type: string
+
+    AttendanceReport:
+      type: object
+      required: [className, month, year, startDate, endDate, students]
+      properties:
+        className:
+          type: string
+        section:
+          type: ["string", "null"]
+        month:
+          type: integer
+        year:
+          type: integer
+        startDate:
+          type: string
+        endDate:
+          type: string
+        students:
+          type: array
+          items:
+            type: object
+            required: [studentId, studentName, rollNumber, present, absent, late, total, dates]
+            properties:
+              studentId:
+                type: integer
+              studentName:
+                type: string
+              rollNumber:
+                type: string
+              present:
+                type: integer
+              absent:
+                type: integer
+              late:
+                type: integer
+              total:
+                type: integer
+              dates:
+                type: object
+                additionalProperties:
+                  type: string
 
     ExamResultInput:
       type: object

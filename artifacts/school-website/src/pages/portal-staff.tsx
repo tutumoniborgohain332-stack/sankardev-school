@@ -7,6 +7,9 @@ import {
   useCreateStaff,
   useListStudents,
   useListAdmissions, useUpdateAdmissionStatus,
+  useGetAttendance, useMarkAttendanceBulk, useGetAttendanceReport,
+  getGetAttendanceQueryKey, getGetAttendanceReportQueryKey,
+  type AttendanceBulkInputRecordsItemStatus,
 } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
@@ -22,14 +25,14 @@ import { useToast } from "@/hooks/use-toast";
 import {
   User, LogOut, Bell, Image, BarChart2, Users, ClipboardList,
   Plus, Trash2, Pencil, Check, X, BookOpen, Phone, Mail, Award,
-  GraduationCap, Calendar, ChevronRight, FileText, UserPlus,
+  GraduationCap, Calendar, ChevronRight, FileText, UserPlus, CheckSquare,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-type Tab = "dashboard" | "notices" | "gallery" | "results" | "staff" | "students" | "admissions";
+type Tab = "dashboard" | "notices" | "gallery" | "results" | "staff" | "students" | "admissions" | "attendance";
 
 export default function PortalStaff() {
   const [, setLocation] = useLocation();
@@ -68,6 +71,7 @@ export default function PortalStaff() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "dashboard", label: "Dashboard", icon: <User className="w-4 h-4" /> },
     { id: "notices", label: "Notices", icon: <Bell className="w-4 h-4" /> },
+    { id: "attendance", label: "Attendance", icon: <CheckSquare className="w-4 h-4" /> },
     { id: "gallery", label: "Gallery", icon: <Image className="w-4 h-4" /> },
     { id: "results", label: "Results", icon: <BarChart2 className="w-4 h-4" /> },
     { id: "staff", label: "Add Staff", icon: <UserPlus className="w-4 h-4" /> },
@@ -121,6 +125,7 @@ export default function PortalStaff() {
           {/* Tab Content */}
           {activeTab === "dashboard" && <DashboardTab user={user} staffData={staffData} isStaffLoading={isStaffLoading} />}
           {activeTab === "notices" && <NoticesTab toast={toast} queryClient={queryClient} />}
+          {activeTab === "attendance" && <AttendanceTab user={user} toast={toast} queryClient={queryClient} />}
           {activeTab === "gallery" && <GalleryTab toast={toast} queryClient={queryClient} />}
           {activeTab === "results" && <ResultsTab toast={toast} queryClient={queryClient} />}
           {activeTab === "staff" && <AddStaffTab toast={toast} queryClient={queryClient} />}
@@ -860,6 +865,7 @@ function AdmissionsTab({ toast, queryClient }: any) {
   return (
     <div className="space-y-5">
       <h2 className="text-lg font-bold">Admission Applications ({admissions?.length ?? 0})</h2>
+
       {isLoading ? (
         <div className="space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-24 w-full" />)}</div>
       ) : (
@@ -907,6 +913,274 @@ function AdmissionsTab({ toast, queryClient }: any) {
             </Card>
           )}
         </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Attendance Tab ─── */
+const CLASSES = ["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"];
+const SECTIONS = ["A", "B", "C", "D"];
+
+function AttendanceTab({ user, toast, queryClient }: any) {
+  const today = new Date().toISOString().split("T")[0];
+  const [mode, setMode] = useState<"mark" | "report">("mark");
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedSection, setSelectedSection] = useState("");
+  const [selectedDate, setSelectedDate] = useState(today);
+  const [reportMonth, setReportMonth] = useState(String(new Date().getMonth() + 1));
+  const [reportYear, setReportYear] = useState(String(new Date().getFullYear()));
+  const [attendanceMap, setAttendanceMap] = useState<Record<number, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  const attendanceParams = selectedClass && selectedDate
+    ? { date: selectedDate, className: selectedClass, section: selectedSection || undefined }
+    : undefined;
+
+  const reportParams = { className: selectedClass, section: selectedSection || undefined, month: reportMonth, year: reportYear };
+
+  const { data: students } = useListStudents(
+    selectedClass ? { class: selectedClass } : {},
+  );
+
+  const { data: existingAttendance, refetch: refetchAttendance } = useGetAttendance(
+    attendanceParams,
+    { query: { queryKey: getGetAttendanceQueryKey(attendanceParams), enabled: !!(selectedClass && selectedDate) } }
+  );
+
+  const { data: report, refetch: refetchReport } = useGetAttendanceReport(
+    reportParams,
+    { query: { queryKey: getGetAttendanceReportQueryKey(reportParams), enabled: false } }
+  );
+
+  const markBulk = useMarkAttendanceBulk();
+
+  useEffect(() => {
+    if (existingAttendance && existingAttendance.length > 0) {
+      const map: Record<number, string> = {};
+      existingAttendance.forEach((r: any) => { map[r.studentId] = r.status; });
+      setAttendanceMap(map);
+    } else if (students && students.length > 0) {
+      const map: Record<number, string> = {};
+      students.forEach((s: any) => { map[s.id] = "present"; });
+      setAttendanceMap(map);
+    }
+  }, [existingAttendance, students]);
+
+  const toggleStatus = (studentId: number) => {
+    setAttendanceMap(prev => {
+      const cur = prev[studentId] || "present";
+      const next = cur === "present" ? "absent" : cur === "absent" ? "late" : "present";
+      return { ...prev, [studentId]: next };
+    });
+  };
+
+  const handleSave = async () => {
+    if (!selectedClass || !selectedDate || !students?.length) {
+      toast({ title: "Select class and date first", variant: "destructive" }); return;
+    }
+    setSaving(true);
+    try {
+      await markBulk.mutateAsync({
+        data: {
+          date: selectedDate,
+          className: selectedClass,
+          section: selectedSection || undefined,
+          markedBy: user.name,
+          records: students.map((s: any) => ({ studentId: s.id, status: (attendanceMap[s.id] || "present") as AttendanceBulkInputRecordsItemStatus })),
+        }
+      });
+      refetchAttendance();
+      toast({ title: "Attendance saved!" });
+    } catch { toast({ title: "Failed to save attendance", variant: "destructive" }); }
+    finally { setSaving(false); }
+  };
+
+  const statusBadge = (status: string) => {
+    if (status === "present") return "bg-accent/15 text-accent border-accent/30";
+    if (status === "absent") return "bg-destructive/15 text-destructive border-destructive/30";
+    return "bg-yellow-100 text-yellow-700 border-yellow-300";
+  };
+
+  const presentCount = students?.filter((s: any) => attendanceMap[s.id] === "present").length ?? 0;
+  const absentCount = students?.filter((s: any) => attendanceMap[s.id] === "absent").length ?? 0;
+  const lateCount = students?.filter((s: any) => attendanceMap[s.id] === "late").length ?? 0;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex gap-3 items-center flex-wrap">
+        <h2 className="text-lg font-bold flex-1">Attendance Management</h2>
+        <div className="flex gap-2 bg-white border rounded-lg p-1">
+          <button onClick={() => setMode("mark")} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${mode === "mark" ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"}`}>
+            Mark Attendance
+          </button>
+          <button onClick={() => setMode("report")} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${mode === "report" ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"}`}>
+            Monthly Report
+          </button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <Card className="shadow-sm">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div>
+              <Label className="text-xs mb-1.5 block">Class *</Label>
+              <Select value={selectedClass} onValueChange={setSelectedClass}>
+                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select class" /></SelectTrigger>
+                <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs mb-1.5 block">Section</Label>
+              <Select value={selectedSection} onValueChange={setSelectedSection}>
+                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="All" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Sections</SelectItem>
+                  {SECTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            {mode === "mark" ? (
+              <div>
+                <Label className="text-xs mb-1.5 block">Date *</Label>
+                <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-9 text-sm" max={today} />
+              </div>
+            ) : (
+              <>
+                <div>
+                  <Label className="text-xs mb-1.5 block">Month</Label>
+                  <Select value={reportMonth} onValueChange={setReportMonth}>
+                    <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>{["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m,i) => <SelectItem key={i+1} value={String(i+1)}>{m}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs mb-1.5 block">Year</Label>
+                  <Select value={reportYear} onValueChange={setReportYear}>
+                    <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>{["2024","2025","2026"].map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+            {mode === "report" && (
+              <div className="flex items-end">
+                <Button onClick={() => refetchReport()} className="h-9 w-full text-sm" disabled={!selectedClass}>Generate Report</Button>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Mark Attendance Mode */}
+      {mode === "mark" && selectedClass && students && (
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <CardTitle className="text-base">{selectedClass}{selectedSection ? ` - ${selectedSection}` : ""} &middot; {selectedDate}</CardTitle>
+              <div className="flex gap-2 items-center">
+                <Badge className="bg-accent/15 text-accent border-accent/30 border">{presentCount} Present</Badge>
+                <Badge className="bg-destructive/15 text-destructive border-destructive/30 border">{absentCount} Absent</Badge>
+                {lateCount > 0 && <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300 border">{lateCount} Late</Badge>}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Click a student row to toggle: Present → Absent → Late</p>
+          </CardHeader>
+          <CardContent className="p-0">
+            {students.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                <p>No students found for this class.</p>
+              </div>
+            ) : (
+              <div className="divide-y">
+                {students.map((student: any, idx: number) => {
+                  const status = attendanceMap[student.id] || "present";
+                  return (
+                    <div
+                      key={student.id}
+                      onClick={() => toggleStatus(student.id)}
+                      className="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-muted/40 transition-colors"
+                    >
+                      <span className="text-xs text-muted-foreground w-6 text-right">{idx + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm">{student.studentName}</p>
+                        <p className="text-xs text-muted-foreground">Roll: {student.rollNumber}</p>
+                      </div>
+                      <Badge className={`text-xs border capitalize min-w-[60px] justify-center ${statusBadge(status)}`}>{status}</Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+          {students.length > 0 && (
+            <div className="p-4 border-t flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">{students.length} students total</p>
+              <Button onClick={handleSave} disabled={saving} className="h-9 text-sm px-6">
+                {saving ? "Saving..." : "Save Attendance"}
+              </Button>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {!selectedClass && mode === "mark" && (
+        <Card className="shadow-sm">
+          <CardContent className="p-8 text-center text-muted-foreground">
+            <CheckSquare className="w-10 h-10 mx-auto mb-3 opacity-30" />
+            <p>Select a class above to mark attendance.</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Monthly Report Mode */}
+      {mode === "report" && report && (
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">
+              {report.className}{report.section ? ` - ${report.section}` : ""} &middot; {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][(report.month ?? 1) - 1]} {report.year}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 overflow-x-auto">
+            {!report.students?.length ? (
+              <div className="p-8 text-center text-muted-foreground">No attendance data for this period.</div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/50 text-left">
+                    <th className="px-4 py-2 font-semibold text-xs whitespace-nowrap">Roll</th>
+                    <th className="px-4 py-2 font-semibold text-xs">Name</th>
+                    <th className="px-4 py-2 font-semibold text-xs text-center text-accent">Present</th>
+                    <th className="px-4 py-2 font-semibold text-xs text-center text-destructive">Absent</th>
+                    <th className="px-4 py-2 font-semibold text-xs text-center text-yellow-600">Late</th>
+                    <th className="px-4 py-2 font-semibold text-xs text-center">Total Days</th>
+                    <th className="px-4 py-2 font-semibold text-xs text-center">%</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {report.students.map((s: any) => {
+                    const pct = s.total > 0 ? Math.round((s.present / s.total) * 100) : 0;
+                    return (
+                      <tr key={s.studentId} className="hover:bg-muted/20">
+                        <td className="px-4 py-2 text-xs text-muted-foreground">{s.rollNumber}</td>
+                        <td className="px-4 py-2 font-medium whitespace-nowrap">{s.studentName}</td>
+                        <td className="px-4 py-2 text-center text-accent font-bold">{s.present}</td>
+                        <td className="px-4 py-2 text-center text-destructive font-bold">{s.absent}</td>
+                        <td className="px-4 py-2 text-center text-yellow-600 font-bold">{s.late}</td>
+                        <td className="px-4 py-2 text-center text-muted-foreground">{s.total}</td>
+                        <td className="px-4 py-2 text-center">
+                          <span className={`font-bold ${pct >= 75 ? "text-accent" : pct >= 50 ? "text-yellow-600" : "text-destructive"}`}>{pct}%</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </CardContent>
+        </Card>
       )}
     </div>
   );

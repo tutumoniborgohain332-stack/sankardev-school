@@ -733,3 +733,86 @@ export const DeleteResultParams = zod.object({
 })
 
 
+/**
+ * @summary Get attendance records
+ */
+export const GetAttendanceQueryParams = zod.object({
+  "date": zod.coerce.string().optional(),
+  "className": zod.coerce.string().optional(),
+  "section": zod.coerce.string().optional()
+})
+
+export const GetAttendanceResponseItem = zod.object({
+  "id": zod.number(),
+  "studentId": zod.number(),
+  "studentName": zod.string().nullish(),
+  "rollNumber": zod.string().nullish(),
+  "date": zod.string(),
+  "status": zod.enum(['present', 'absent', 'late']),
+  "className": zod.string(),
+  "section": zod.string().nullish(),
+  "markedBy": zod.string().nullish(),
+  "remarks": zod.string().nullish()
+})
+export const GetAttendanceResponse = zod.array(GetAttendanceResponseItem)
+
+
+/**
+ * @summary Mark attendance for a class on a date
+ */
+export const MarkAttendanceBulkBody = zod.object({
+  "date": zod.string(),
+  "className": zod.string(),
+  "section": zod.string().optional(),
+  "markedBy": zod.string().optional(),
+  "records": zod.array(zod.object({
+  "studentId": zod.number(),
+  "status": zod.enum(['present', 'absent', 'late']),
+  "remarks": zod.string().optional()
+}))
+})
+
+export const MarkAttendanceBulkResponse = zod.object({
+  "ok": zod.boolean(),
+  "count": zod.number()
+})
+
+
+/**
+ * @summary Get monthly attendance report
+ */
+export const GetAttendanceReportQueryParams = zod.object({
+  "className": zod.coerce.string(),
+  "section": zod.coerce.string().optional(),
+  "month": zod.coerce.string(),
+  "year": zod.coerce.string()
+})
+
+export const GetAttendanceReportResponse = zod.object({
+  "className": zod.string(),
+  "section": zod.string().nullish(),
+  "month": zod.number(),
+  "year": zod.number(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "students": zod.array(zod.object({
+  "studentId": zod.number(),
+  "studentName": zod.string(),
+  "rollNumber": zod.string(),
+  "present": zod.number(),
+  "absent": zod.number(),
+  "late": zod.number(),
+  "total": zod.number(),
+  "dates": zod.record(zod.string(), zod.string())
+}))
+})
+
+
+/**
+ * @summary Delete an attendance record
+ */
+export const DeleteAttendanceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
