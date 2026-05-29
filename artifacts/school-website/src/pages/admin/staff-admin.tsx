@@ -55,17 +55,30 @@ export default function StaffAdmin() {
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Only allow images — validate on client before upload
     if (!file.type.startsWith("image/")) return;
+
+    // Show local preview INSTANTLY — no need to wait for upload
+    const localUrl = URL.createObjectURL(file);
+    setPhotoPreview(localUrl);
+    form.setValue("photoUrl", ""); // clear previous Supabase URL until upload done
+
     setIsUploading(true);
     try {
       const url = await uploadImageWithCompression(file, "assets");
       if (url) {
         form.setValue("photoUrl", url);
+        // swap local blob URL with real Supabase URL
+        URL.revokeObjectURL(localUrl);
         setPhotoPreview(url);
+      } else {
+        // upload failed — clear preview
+        setPhotoPreview(null);
+        URL.revokeObjectURL(localUrl);
       }
     } catch (err) {
       console.error("Photo upload failed", err);
+      setPhotoPreview(null);
+      URL.revokeObjectURL(localUrl);
     } finally {
       setIsUploading(false);
     }
@@ -115,52 +128,78 @@ export default function StaffAdmin() {
             </DialogHeader>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Photo Upload Section */}
-              <div className="col-span-2 space-y-2">
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Camera className="w-4 h-4 text-primary" />
                   <Label className="text-sm font-semibold">Teacher Photo <span className="text-primary">(Must Have)</span></Label>
                 </div>
+
                 {photoPreview ? (
-                  <div className="relative w-full h-44 rounded-xl overflow-hidden border-2 border-primary/30 group">
-                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover object-top" />
-                    <button
-                      type="button"
-                      onClick={handleRemovePhoto}
-                      className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">✓ Photo uploaded</div>
+                  /* ── Preview box ── */
+                  <div className="space-y-2">
+                    <div className="relative w-full h-44 rounded-xl overflow-hidden border-2 border-primary/40">
+                      <img
+                        src={photoPreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover object-top"
+                      />
+                      {/* Uploading overlay — shown on top of the preview */}
+                      {isUploading && (
+                        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-2">
+                          <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                          <span className="text-white text-xs font-semibold">Uploading to server...</span>
+                        </div>
+                      )}
+                      {/* Success badge */}
+                      {!isUploading && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs text-center py-1.5 font-medium">
+                          ✓ Photo ready
+                        </div>
+                      )}
+                    </div>
+                    {/* Action buttons below the preview */}
+                    <div className="flex gap-2">
+                      <label
+                        htmlFor="staff-photo-upload"
+                        className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg border border-primary/40 text-primary text-sm font-medium cursor-pointer hover:bg-primary/10 transition-colors"
+                      >
+                        <Camera className="w-4 h-4" /> Change Photo
+                        <input
+                          id="staff-photo-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handlePhotoChange}
+                          disabled={isUploading}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleRemovePhoto}
+                        disabled={isUploading}
+                        className="flex items-center gap-1 px-3 h-9 rounded-lg border border-destructive/40 text-destructive text-sm hover:bg-destructive/10 transition-colors disabled:opacity-50"
+                      >
+                        <X className="w-4 h-4" /> Remove
+                      </button>
+                    </div>
                   </div>
                 ) : (
+                  /* ── Empty upload box ── */
                   <label
                     htmlFor="staff-photo-upload"
-                    className={`flex flex-col items-center justify-center w-full h-36 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${
-                      isUploading
-                        ? "border-primary/50 bg-primary/5"
-                        : "border-muted-foreground/30 hover:border-primary hover:bg-primary/5"
-                    }`}
+                    className="flex flex-col items-center justify-center w-full h-36 rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors"
                   >
-                    {isUploading ? (
-                      <div className="flex flex-col items-center gap-2 text-primary">
-                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                        <span className="text-xs font-medium">Uploading...</span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <Camera className="w-8 h-8" />
-                        <span className="text-sm font-medium">Tap to select photo</span>
-                        <span className="text-xs">Gallery or Camera</span>
-                      </div>
-                    )}
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <Camera className="w-8 h-8" />
+                      <span className="text-sm font-medium">Tap to select photo</span>
+                      <span className="text-xs">Gallery or Camera</span>
+                    </div>
                     <input
                       id="staff-photo-upload"
                       type="file"
                       accept="image/*"
-                      capture="environment"
                       className="hidden"
                       onChange={handlePhotoChange}
-                      disabled={isUploading}
                     />
                   </label>
                 )}
