@@ -25,16 +25,20 @@ export function Header() {
             <div className="flex gap-2">
               {user ? (
                 <div className="flex items-center gap-4">
-                  <span>Welcome, {user.name}</span>
-                  {user.role === "admin" && (
-                    <Link href="/admin" className="hover:underline">Admin</Link>
-                  )}
-                  {user.role === "staff" && (
-                    <Link href="/portal/staff" className="hover:underline">Portal</Link>
-                  )}
-                  {user.role === "student" && (
-                    <Link href="/portal/student" className="hover:underline">Portal</Link>
-                  )}
+                  <Link
+                    href={
+                      user.role === "admin" || user.role === "principal"
+                        ? "/admin"
+                        : user.role === "staff"
+                        ? "/portal/staff"
+                        : user.role === "student"
+                        ? "/portal/student"
+                        : "/"
+                    }
+                    className="hover:underline font-semibold"
+                  >
+                    Welcome, {user.name}
+                  </Link>
                   <button onClick={() => logout.mutate(undefined, { onSuccess: () => window.location.href = "/" })} className="hover:underline">
                     Logout
                   </button>
