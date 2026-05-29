@@ -18,6 +18,8 @@ import { motion } from "framer-motion";
 import { CheckCircle, XCircle, Eye, Clock } from "lucide-react";
 
 import type { AdmissionApplication } from "@workspace/api-client-react";
+import { useAdmissionOpen, useToggleAdmission } from "@/hooks/use-admission-settings";
+import { Switch } from "@/components/ui/switch";
 type Admission = AdmissionApplication;
 
 function StatusBadge({ status }: { status: string }) {
@@ -41,6 +43,8 @@ export default function AdmissionsAdmin() {
   const [selectedAdmission, setSelectedAdmission] = useState<Admission | null>(null);
   const [remarks, setRemarks] = useState("");
   const queryClient = useQueryClient();
+  const { admissionOpen } = useAdmissionOpen();
+  const toggleAdmission = useToggleAdmission();
 
   const params = selectedTab !== "all" ? { status: selectedTab as "pending" | "approved" | "rejected" } : {};
   const { data: admissions, isLoading } = useListAdmissions(params);
@@ -61,9 +65,28 @@ export default function AdmissionsAdmin() {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Admission Applications</h1>
-        <p className="text-muted-foreground text-sm mt-1">{admissions?.length ?? 0} applications</p>
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Admission Applications</h1>
+          <p className="text-muted-foreground text-sm mt-1">{admissions?.length ?? 0} applications</p>
+        </div>
+
+        {/* Admission Portal Toggle */}
+        <div className="flex items-center gap-3 bg-muted/50 border border-border rounded-xl px-5 py-3">
+          <div>
+            <p className="text-sm font-semibold text-foreground">Admission Portal</p>
+            <p className="text-xs text-muted-foreground">
+              {admissionOpen ? "Publicly visible — accepting applications" : "Hidden from public — not accepting"}
+            </p>
+          </div>
+          <Switch
+            id="admission-toggle"
+            checked={admissionOpen}
+            onCheckedChange={(val) => toggleAdmission.mutate(val)}
+            disabled={toggleAdmission.isPending}
+            className="data-[state=checked]:bg-green-600"
+          />
+        </div>
       </div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>

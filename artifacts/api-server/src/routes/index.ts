@@ -9,6 +9,7 @@ import admissionsRouter from "./admissions";
 import statsRouter from "./stats";
 import resultsRouter from "./results";
 import attendanceRouter from "./attendance";
+import settingsRouter from "./settings";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(admissionsRouter);
 router.use(statsRouter);
 router.use(resultsRouter);
 router.use(attendanceRouter);
+router.use(settingsRouter);
 
 export default router;

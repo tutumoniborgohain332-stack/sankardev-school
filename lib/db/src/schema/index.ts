@@ -6,3 +6,5 @@ export * from "./news";
 export * from "./admissions";
 export * from "./results";
 export * from "./attendance";
+export * from "./settings";
+

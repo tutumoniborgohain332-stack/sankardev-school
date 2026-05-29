@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Users, GraduationCap, ArrowRight, Bell, BookOpen, Building2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useAdmissionOpen } from "@/hooks/use-admission-settings";
 
 const HERO_IMAGES = [
   "/images/hero-1.png",
@@ -30,6 +31,7 @@ export default function Home() {
   const { data: rawNews } = useListNews({ limit: 5 });
   const news = rawNews as NewsItem[] | undefined;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { admissionOpen } = useAdmissionOpen();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -97,9 +99,11 @@ export default function Home() {
               
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="font-bold text-lg px-8 py-6 rounded-full shadow-xl hover:scale-105 transition-transform bg-white text-primary hover:bg-white/90">
-                <Link href="/admission">Admissions Open</Link>
-              </Button>
+              {admissionOpen && (
+                <Button asChild size="lg" className="font-bold text-lg px-8 py-6 rounded-full shadow-xl hover:scale-105 transition-transform bg-white text-primary hover:bg-white/90">
+                  <Link href="/admission">Admissions Open</Link>
+                </Button>
+              )}
             </div>
           </motion.div>
         </div>
@@ -224,20 +228,22 @@ export default function Home() {
             </div>
 
             <div className="grid gap-5">
-              <Card className="shadow-lg overflow-hidden relative border-0" style={{ background: "hsl(28, 95%, 50%)" }}>
-                <div className="absolute top-0 right-0 p-8 opacity-10">
-                  <BookOpen className="w-32 h-32 text-white" />
-                </div>
-                <CardContent className="p-8 relative z-10">
-                  <h3 className="text-2xl font-serif font-bold mb-3 text-white">Admissions Open</h3>
-                  <p className="mb-6 text-white/90 font-medium leading-relaxed text-sm">
-                    Join our prestigious institution. Accepting applications for the upcoming academic session — Ankur to Class X.
-                  </p>
-                  <Button asChild className="w-full font-bold shadow-md hover:scale-105 transition-transform bg-white text-primary hover:bg-white/90">
-                    <Link href="/admission">Apply Online Now</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              {admissionOpen && (
+                <Card className="shadow-lg overflow-hidden relative border-0" style={{ background: "hsl(28, 95%, 50%)" }}>
+                  <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <BookOpen className="w-32 h-32 text-white" />
+                  </div>
+                  <CardContent className="p-8 relative z-10">
+                    <h3 className="text-2xl font-serif font-bold mb-3 text-white">Admissions Open</h3>
+                    <p className="mb-6 text-white/90 font-medium leading-relaxed text-sm">
+                      Join our prestigious institution. Accepting applications for the upcoming academic session — Ankur to Class X.
+                    </p>
+                    <Button asChild className="w-full font-bold shadow-md hover:scale-105 transition-transform bg-white text-primary hover:bg-white/90">
+                      <Link href="/admission">Apply Online Now</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
 
               <Card className="bg-white border-border shadow-sm">
                 <CardContent className="p-6">

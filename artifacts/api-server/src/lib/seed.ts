@@ -8,9 +8,10 @@ function hashPassword(password: string): string {
 }
 
 const DEFAULT_USERS = [
-  { username: "ujjal", password: "ujjal2007", role: "admin", name: "Ujjal" },
+  { username: "ujjal", password: "ujjal123", role: "admin", name: "Ujjal" },
   { username: "admin", password: "admin@school2024", role: "admin", name: "Administrator" },
   { username: "staff", password: "staff123", role: "staff", name: "Staff Member" },
+  { username: "tutumoni", password: "tutumoni123", role: "principal", name: "Principal" },
 ];
 
 export async function seedDefaultUsers() {
