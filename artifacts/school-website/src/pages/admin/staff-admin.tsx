@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { uploadImageWithCompression } from "@/lib/supabase";
 import {
   useListStaff,
   getListStaffQueryKey,
@@ -16,7 +17,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Star } from "lucide-react";
+import { Plus, Trash2, Star, Camera, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,12 +33,15 @@ const staffSchema = z.object({
   isHeadmaster: z.boolean().optional(),
   username: z.string().optional(),
   password: z.string().optional(),
+  photoUrl: z.string().optional(),
 });
 
 type StaffForm = z.infer<typeof staffSchema>;
 
 export default function StaffAdmin() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { data: staff, isLoading } = useListStaff();
   const createStaff = useCreateStaff();
@@ -45,16 +49,41 @@ export default function StaffAdmin() {
 
   const form = useForm<StaffForm>({
     resolver: zodResolver(staffSchema),
-    defaultValues: { name: "", designation: "", joinDate: "", qualification: "", subject: "", phone: "", email: "", isHeadmaster: false, username: "", password: "" },
+    defaultValues: { name: "", designation: "", joinDate: "", qualification: "", subject: "", phone: "", email: "", isHeadmaster: false, username: "", password: "", photoUrl: "" },
   });
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Only allow images — validate on client before upload
+    if (!file.type.startsWith("image/")) return;
+    setIsUploading(true);
+    try {
+      const url = await uploadImageWithCompression(file, "assets");
+      if (url) {
+        form.setValue("photoUrl", url);
+        setPhotoPreview(url);
+      }
+    } catch (err) {
+      console.error("Photo upload failed", err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    form.setValue("photoUrl", "");
+    setPhotoPreview(null);
+  };
 
   const onSubmit = (data: StaffForm) => {
     createStaff.mutate(
-      { data: { name: data.name, designation: data.designation, joinDate: data.joinDate, qualification: data.qualification, subject: data.subject, phone: data.phone, email: data.email, isHeadmaster: data.isHeadmaster, username: data.username || undefined, password: data.password || undefined } as any },
+      { data: { name: data.name, designation: data.designation, joinDate: data.joinDate, qualification: data.qualification, subject: data.subject, phone: data.phone, email: data.email, isHeadmaster: data.isHeadmaster, username: data.username || undefined, password: data.password || undefined, photoUrl: data.photoUrl || undefined } as any },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
           form.reset();
+          setPhotoPreview(null);
           setIsOpen(false);
         },
       }
@@ -85,6 +114,57 @@ export default function StaffAdmin() {
               <DialogTitle>Add New Staff Member</DialogTitle>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Photo Upload Section */}
+              <div className="col-span-2 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-primary" />
+                  <Label className="text-sm font-semibold">Teacher Photo <span className="text-primary">(Must Have)</span></Label>
+                </div>
+                {photoPreview ? (
+                  <div className="relative w-full h-44 rounded-xl overflow-hidden border-2 border-primary/30 group">
+                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover object-top" />
+                    <button
+                      type="button"
+                      onClick={handleRemovePhoto}
+                      className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">✓ Photo uploaded</div>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="staff-photo-upload"
+                    className={`flex flex-col items-center justify-center w-full h-36 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${
+                      isUploading
+                        ? "border-primary/50 bg-primary/5"
+                        : "border-muted-foreground/30 hover:border-primary hover:bg-primary/5"
+                    }`}
+                  >
+                    {isUploading ? (
+                      <div className="flex flex-col items-center gap-2 text-primary">
+                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <span className="text-xs font-medium">Uploading...</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <Camera className="w-8 h-8" />
+                        <span className="text-sm font-medium">Tap to select photo</span>
+                        <span className="text-xs">Gallery or Camera</span>
+                      </div>
+                    )}
+                    <input
+                      id="staff-photo-upload"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={handlePhotoChange}
+                      disabled={isUploading}
+                    />
+                  </label>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 space-y-1">
                   <Label>Full Name *</Label>
@@ -141,8 +221,8 @@ export default function StaffAdmin() {
                   <p className="text-xs text-muted-foreground mt-1">This staff member can login to the Staff Portal using these credentials.</p>
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={createStaff.isPending} data-testid="button-submit-staff">
-                {createStaff.isPending ? "Saving..." : "Add Staff Member"}
+              <Button type="submit" className="w-full" disabled={createStaff.isPending || isUploading} data-testid="button-submit-staff">
+                {createStaff.isPending ? "Saving..." : isUploading ? "Uploading photo..." : "Add Staff Member"}
               </Button>
             </form>
           </DialogContent>

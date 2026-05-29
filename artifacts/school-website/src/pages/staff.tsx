@@ -2,8 +2,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { useListStaff } from "@workspace/api-client-react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { User, Mail, Phone, BookOpen, Award } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User, Mail, BookOpen, Award } from "lucide-react";
 
 export default function Staff() {
   const { data: staff, isLoading } = useListStaff();
@@ -48,17 +47,23 @@ export default function Staff() {
                 transition={{ delay: (index % 4) * 0.1 }}
               >
                 <Card className="h-full overflow-hidden hover:shadow-xl transition-shadow border-primary/10 flex flex-col group">
-                  <div className="h-24 bg-primary/10 w-full relative">
-                    <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-                      <Avatar className="h-24 w-24 border-4 border-white shadow-md">
-                        <AvatarImage src={member.photoUrl || undefined} className="object-cover" />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
+                  {/* Full rectangular photo area */}
+                  <div className="h-52 w-full relative overflow-hidden bg-primary/10 flex-shrink-0">
+                    {member.photoUrl ? (
+                      <img
+                        src={member.photoUrl}
+                        alt={member.name}
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+                        <span className="text-6xl font-bold text-primary/40 select-none">
                           {member.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <CardContent className="pt-16 pb-6 px-6 text-center flex-1 flex flex-col">
+                  <CardContent className="pt-4 pb-6 px-6 text-center flex-1 flex flex-col">
                     <h3 className="text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{member.name}</h3>
                     <p className="text-accent font-semibold text-sm uppercase tracking-wider mb-4">
                       {member.designation}
