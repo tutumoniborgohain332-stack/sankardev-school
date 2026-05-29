@@ -404,16 +404,7 @@ export default function Admission() {
                         <FormItem><FormLabel>Date (তাৰিখ)</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage/></FormItem>
                       )} />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12 pt-8">
-                      <div className="text-center">
-                        <div className="border-b border-dashed border-gray-400 w-48 mx-auto mb-2"></div>
-                        <p className="text-sm font-medium">Signature of Student</p>
-                      </div>
-                      <div className="text-center">
-                        <div className="border-b border-dashed border-gray-400 w-48 mx-auto mb-2"></div>
-                        <p className="text-sm font-medium">Signature of Parent/Guardian</p>
-                      </div>
-                    </div>
+
                   </div>
 
                   <div className="flex justify-center pt-8">

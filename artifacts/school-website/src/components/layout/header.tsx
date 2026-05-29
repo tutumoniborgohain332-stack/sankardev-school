@@ -41,7 +41,7 @@ export function Header() {
                 </div>
               ) : (
                 <>
-                  <Link href="/login/student" className="hover:underline">Student Login</Link>
+                  {/* <Link href="/login/student" className="hover:underline">Student Login</Link> */}
                   <Link href="/login/staff" className="hover:underline">Staff Login</Link>
                 </>
               )}
