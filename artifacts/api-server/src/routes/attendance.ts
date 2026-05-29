@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAuth } from "./auth";
 import { db, attendanceTable, studentsTable } from "@workspace/db";
 import { eq, and, gte, lte, sql } from "drizzle-orm";
 
@@ -149,7 +150,7 @@ router.get("/attendance/report", async (req, res) => {
   });
 });
 
-router.delete("/attendance/:id", async (req, res) => {
+router.delete("/attendance/:id", requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
   await db.delete(attendanceTable).where(eq(attendanceTable.id, id));

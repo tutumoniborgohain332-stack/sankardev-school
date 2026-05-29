@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAuth } from "./auth";
 import { db, staffTable, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { CreateStaffBody, UpdateStaffBody, UpdateStaffParams, DeleteStaffParams, GetStaffMemberParams } from "@workspace/api-zod";
@@ -15,7 +16,7 @@ router.get("/staff", async (req, res) => {
   return res.json(staff.map(s => ({ ...s, isHeadmaster: s.isHeadmaster ?? false })));
 });
 
-router.post("/staff", async (req, res) => {
+router.post("/staff", requireAuth, async (req, res) => {
   const parsed = CreateStaffBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
@@ -41,7 +42,6 @@ router.post("/staff", async (req, res) => {
   const [member] = await db.insert(staffTable).values({
     name: staffData.name,
     designation: staffData.designation,
-    department: staffData.department,
     qualification: staffData.qualification ?? null,
     subject: staffData.subject ?? null,
     phone: staffData.phone ?? null,
@@ -65,7 +65,7 @@ router.get("/staff/:id", async (req, res) => {
   return res.json({ ...member, isHeadmaster: member.isHeadmaster ?? false });
 });
 
-router.patch("/staff/:id", async (req, res) => {
+router.patch("/staff/:id", requireAuth, async (req, res) => {
   const paramParsed = UpdateStaffParams.safeParse({ id: Number(req.params.id) });
   if (!paramParsed.success) return res.status(400).json({ error: "Invalid id" });
 
@@ -82,7 +82,7 @@ router.patch("/staff/:id", async (req, res) => {
   return res.json({ ...member, isHeadmaster: member.isHeadmaster ?? false });
 });
 
-router.delete("/staff/:id", async (req, res) => {
+router.delete("/staff/:id", requireAuth, async (req, res) => {
   const parsed = DeleteStaffParams.safeParse({ id: Number(req.params.id) });
   if (!parsed.success) return res.status(400).json({ error: "Invalid id" });
 

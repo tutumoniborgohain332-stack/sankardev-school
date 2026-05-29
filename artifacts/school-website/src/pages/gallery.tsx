@@ -53,7 +53,7 @@ export default function Gallery() {
             transition={{ delay: 0.1 }}
             className="text-lg max-w-2xl mx-auto opacity-90"
           >
-            Glimpses of life at Sankardev Shishu/Vidya Niketan
+            Glimpses of life at Sankardev Sishu Vidya Niketan Mathurapure
           </motion.p>
         </div>
       </div>

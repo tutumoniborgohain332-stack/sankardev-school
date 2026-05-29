@@ -866,15 +866,13 @@ components:
 
     StaffMember:
       type: object
-      required: [id, name, designation, department, joinDate]
+      required: [id, name, designation, joinDate]
       properties:
         id:
           type: integer
         name:
           type: string
         designation:
-          type: string
-        department:
           type: string
         qualification:
           type: ["string", "null"]
@@ -895,13 +893,11 @@ components:
 
     StaffInput:
       type: object
-      required: [name, designation, department, joinDate]
+      required: [name, designation, joinDate]
       properties:
         name:
           type: string
         designation:
-          type: string
-        department:
           type: string
         qualification:
           type: string
@@ -928,8 +924,6 @@ components:
         name:
           type: string
         designation:
-          type: string
-        department:
           type: string
         qualification:
           type: string

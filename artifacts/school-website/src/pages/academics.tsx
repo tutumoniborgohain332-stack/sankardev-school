@@ -22,7 +22,7 @@ export default function Academics() {
             transition={{ delay: 0.1 }}
             className="text-lg max-w-2xl mx-auto opacity-90"
           >
-            Comprehensive education framework designed for academic excellence and overall development.
+            
           </motion.p>
         </div>
       </div>
@@ -43,8 +43,8 @@ export default function Academics() {
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-4">We offer comprehensive education following the prescribed curriculum from foundational stages to secondary education.</p>
                 <ul className="space-y-2 font-medium text-foreground">
-                  <li className="flex items-center before:content-[''] before:w-2 before:h-2 before:bg-accent before:rounded-full before:mr-3">Ankur (Pre-Primary I)</li>
-                  <li className="flex items-center before:content-[''] before:w-2 before:h-2 before:bg-accent before:rounded-full before:mr-3">Mukul (Pre-Primary II)</li>
+                  <li className="flex items-center before:content-[''] before:w-2 before:h-2 before:bg-accent before:rounded-full before:mr-3">Ankur</li>
+                  <li className="flex items-center before:content-[''] before:w-2 before:h-2 before:bg-accent before:rounded-full before:mr-3">Mukul</li>
                   <li className="flex items-center before:content-[''] before:w-2 before:h-2 before:bg-accent before:rounded-full before:mr-3">Class I to V (Primary)</li>
                   <li className="flex items-center before:content-[''] before:w-2 before:h-2 before:bg-accent before:rounded-full before:mr-3">Class VI to VIII (Upper Primary)</li>
                   <li className="flex items-center before:content-[''] before:w-2 before:h-2 before:bg-accent before:rounded-full before:mr-3">Class IX & X (Secondary)</li>

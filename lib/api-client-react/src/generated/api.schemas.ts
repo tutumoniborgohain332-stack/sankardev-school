@@ -117,7 +117,6 @@ export interface StaffMember {
   id: number;
   name: string;
   designation: string;
-  department: string;
   /** @nullable */
   qualification?: string | null;
   /** @nullable */
@@ -137,7 +136,6 @@ export interface StaffMember {
 export interface StaffInput {
   name: string;
   designation: string;
-  department: string;
   qualification?: string;
   subject?: string;
   phone?: string;
@@ -152,7 +150,6 @@ export interface StaffInput {
 export interface StaffUpdate {
   name?: string;
   designation?: string;
-  department?: string;
   qualification?: string;
   subject?: string;
   phone?: string;

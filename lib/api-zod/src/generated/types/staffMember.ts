@@ -10,7 +10,6 @@ export interface StaffMember {
   id: number;
   name: string;
   designation: string;
-  department: string;
   /** @nullable */
   qualification?: string | null;
   /** @nullable */

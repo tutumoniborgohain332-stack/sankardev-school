@@ -88,23 +88,17 @@ export default function Home() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="max-w-4xl mx-auto"
           >
-            <span className="text-yellow-300 font-bold tracking-widest uppercase mb-4 block drop-shadow-md text-sm">
-              Welcome to our Heritage
-            </span>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif text-white mb-4 drop-shadow-lg">
-              শংকৰদেৱ শিশু/বিদ্যা নিকেতন
+              শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
             </h1>
-            <h2 className="text-2xl md:text-3xl text-white/90 mb-3 font-serif">Sankardev Vidya Niketan</h2>
+            <h2 className="text-2xl md:text-3xl text-white/90 mb-3 font-serif">Sankardev Sishu Vidya Niketan Mathurapure</h2>
             <span className="text-xl md:text-2xl text-white/80 block mb-8">Mathurapur</span>
             <p className="text-base md:text-lg text-white/90 mb-10 max-w-2xl mx-auto font-medium drop-shadow-md">
-              Fostering excellence in education while preserving the rich cultural legacy of Assam.
+              
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="font-bold text-lg px-8 py-6 rounded-full shadow-xl hover:scale-105 transition-transform bg-white text-primary hover:bg-white/90">
                 <Link href="/admission">Admissions Open</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold text-lg px-8 py-6 rounded-full text-white border-white/40 backdrop-blur-sm hover:bg-white/20">
-                <Link href="/about">Discover Our History</Link>
               </Button>
             </div>
           </motion.div>
@@ -138,7 +132,7 @@ export default function Home() {
               <div className="mx-auto w-16 h-16 bg-secondary/20 text-secondary-foreground rounded-full flex items-center justify-center mb-4">
                 <GraduationCap className="w-8 h-8" />
               </div>
-              <h3 className="text-4xl font-bold text-secondary-foreground mb-2">{stats?.totalStaff || "40+"}</h3>
+              <h3 className="text-4xl font-bold text-secondary-foreground mb-2">{stats?.totalStaff || "15+"}</h3>
               <p className="text-muted-foreground font-medium uppercase tracking-wider text-sm">Dedicated Faculty</p>
             </motion.div>
 
@@ -237,7 +231,7 @@ export default function Home() {
                 <CardContent className="p-8 relative z-10">
                   <h3 className="text-2xl font-serif font-bold mb-3 text-white">Admissions Open</h3>
                   <p className="mb-6 text-white/90 font-medium leading-relaxed text-sm">
-                    Join our prestigious institution. Accepting applications for the upcoming academic session — Pre-primary to Class X.
+                    Join our prestigious institution. Accepting applications for the upcoming academic session — Ankur to Class X.
                   </p>
                   <Button asChild className="w-full font-bold shadow-md hover:scale-105 transition-transform bg-white text-primary hover:bg-white/90">
                     <Link href="/admission">Apply Online Now</Link>

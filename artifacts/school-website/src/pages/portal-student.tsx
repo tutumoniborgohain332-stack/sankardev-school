@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, LogOut, BookOpen, Calendar, Award, FileText, Bell } from "lucide-react";
+import { PWAInstallButton } from "@/components/pwa-install-button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PortalStudent() {
@@ -48,9 +49,12 @@ export default function PortalStudent() {
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h1 className="text-3xl font-serif font-bold text-foreground">Student Dashboard</h1>
+            <div className="flex items-center gap-4">
+            <PWAInstallButton />
             <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2 border-primary text-primary hover:bg-primary/10">
               <LogOut className="w-4 h-4" /> Logout
             </Button>
+          </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

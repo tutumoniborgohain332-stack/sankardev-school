@@ -3,7 +3,8 @@ import {
   useListStudents, 
   getListStudentsQueryKey, 
   useCreateStudent, 
-  useDeleteStudent 
+  useDeleteStudent,
+  useGetMe
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { 
@@ -20,12 +21,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Search, Trash2, ArrowUpCircle, ShieldAlert } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+
 
 const formSchema = z.object({
   studentName: z.string().min(1, "Required"),
@@ -48,6 +50,11 @@ export default function StudentsAdmin() {
   const [search, setSearch] = useState("");
   const [className, setClassName] = useState<string>("");
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isUpscaleOpen, setIsUpscaleOpen] = useState(false);
+  const [upscalePassword, setUpscalePassword] = useState("");
+  const [upscaleLoading, setUpscaleLoading] = useState(false);
+  const { data: currentUser } = useGetMe();
+  const isPrivileged = currentUser?.role === "principal" || currentUser?.role === "vice_principal";
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -111,14 +118,49 @@ export default function StudentsAdmin() {
     );
   };
 
+  const handleUpscale = async () => {
+    if (!upscalePassword) return;
+    setUpscaleLoading(true);
+    try {
+      const res = await fetch("/api/students/upscale", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ password: upscalePassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upscale failed");
+      queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
+      toast({ title: "✅ Upscale Successful!", description: data.message });
+      setIsUpscaleOpen(false);
+      setUpscalePassword("");
+    } catch (err: any) {
+      toast({ title: "Upscale Failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUpscaleLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Students</h1>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button><Plus className="mr-2 h-4 w-4" /> Add Student</Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          {/* Upscale button - only for Principal / Vice Principal */}
+          {isPrivileged && (
+            <Button
+              variant="outline"
+              className="border-amber-500 text-amber-600 hover:bg-amber-50 font-semibold"
+              onClick={() => setIsUpscaleOpen(true)}
+            >
+              <ArrowUpCircle className="mr-2 h-4 w-4" />
+              Upscale Classes
+            </Button>
+          )}
+          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+            <DialogTrigger asChild>
+              <Button><Plus className="mr-2 h-4 w-4" /> Add Student</Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Student</DialogTitle>
@@ -139,10 +181,34 @@ export default function StudentsAdmin() {
                     <FormItem><FormLabel>Mother's Name *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="className" render={({ field }) => (
-                    <FormItem><FormLabel>Class *</FormLabel><FormControl><Input {...field} placeholder="e.g. Class I" /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Class *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {["Ankur", "Mukul", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"].map(c => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="section" render={({ field }) => (
-                    <FormItem><FormLabel>Section</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Section</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select Section" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {["A", "B", "C", "D"].map(s => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="rollNumber" render={({ field }) => (
                     <FormItem><FormLabel>Roll Number *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -166,6 +232,7 @@ export default function StudentsAdmin() {
             </Form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 items-center bg-card p-4 rounded-lg border">
@@ -185,10 +252,9 @@ export default function StudentsAdmin() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Classes</SelectItem>
-              <SelectItem value="Ankur">Ankur</SelectItem>
-              <SelectItem value="Mukul">Mukul</SelectItem>
-              <SelectItem value="Class I">Class I</SelectItem>
-              <SelectItem value="Class X">Class X</SelectItem>
+              {["Ankur", "Mukul", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"].map(c => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -265,6 +331,52 @@ export default function StudentsAdmin() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Upscale Confirmation Dialog */}
+      <Dialog open={isUpscaleOpen} onOpenChange={(open) => { setIsUpscaleOpen(open); if (!open) setUpscalePassword(""); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <ShieldAlert className="w-5 h-5" /> Upscale All Classes
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
+              <p className="font-semibold mb-1">⚠️ This action will:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Promote ALL students to the next class</li>
+                <li>Ankur → Mukul → Class I → II → ... → X</li>
+                <li>Class X students will be auto-deleted after <strong>10 days</strong></li>
+              </ul>
+              <p className="mt-2 font-semibold">Are you sure you want to continue?</p>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="upscale-password">Enter your password to confirm</Label>
+              <Input
+                id="upscale-password"
+                type="password"
+                placeholder="Your login password"
+                value={upscalePassword}
+                onChange={e => setUpscalePassword(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleUpscale()}
+              />
+              <p className="text-xs text-muted-foreground">Only Principal or Vice Principal password is accepted.</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => { setIsUpscaleOpen(false); setUpscalePassword(""); }}>
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold"
+                onClick={handleUpscale}
+                disabled={!upscalePassword || upscaleLoading}
+              >
+                {upscaleLoading ? "Upscaling..." : "✅ Confirm Upscale"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

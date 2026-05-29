@@ -6,7 +6,6 @@ export const staffTable = pgTable("staff", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   designation: text("designation").notNull(),
-  department: text("department").notNull(),
   qualification: text("qualification"),
   subject: text("subject"),
   phone: text("phone"),

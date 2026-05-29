@@ -63,7 +63,7 @@ export default function Contact() {
                   <div>
                     <h3 className="font-bold text-lg mb-1">School Address</h3>
                     <p className="text-muted-foreground">
-                      Sankardev Shishu/Vidya Niketan<br />
+                      Sankardev Sishu Vidya Niketan Mathurapure<br />
                       Mathurapur, Assam<br />
                       PIN: 785689, India
                     </p>
@@ -78,8 +78,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg mb-1">Phone</h3>
-                    <p className="text-muted-foreground">+91 9876543210</p>
-                    <p className="text-muted-foreground">+91 8765432109</p>
+                    <p className="text-muted-foreground">+91 9365526549</p>
                   </div>
                 </CardContent>
               </Card>
@@ -91,7 +90,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg mb-1">Email</h3>
-                    <p className="text-muted-foreground">contact@ssvnmathurapur.edu.in</p>
+                    <p className="text-muted-foreground">ssnmathurapur@gmail.com</p>
                   </div>
                 </CardContent>
               </Card>
@@ -121,23 +120,24 @@ export default function Contact() {
                 <h3 className="text-2xl font-serif font-bold text-primary">Send us a Message</h3>
               </div>
               <CardContent className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form action="https://formsubmit.co/ssnmathurapur@gmail.com" method="POST" className="space-y-6">
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-semibold">Your Name</label>
-                    <Input id="name" required placeholder="John Doe" className="bg-muted/50" />
+                    <Input id="name" name="name" required placeholder="John Doe" className="bg-muted/50" />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="email" className="text-sm font-semibold">Email Address</label>
-                    <Input id="email" type="email" required placeholder="john@example.com" className="bg-muted/50" />
+                    <Input id="email" name="email" type="email" required placeholder="john@example.com" className="bg-muted/50" />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="subject" className="text-sm font-semibold">Subject</label>
-                    <Input id="subject" required placeholder="Admission Inquiry" className="bg-muted/50" />
+                    <Input id="subject" name="_subject" required placeholder="Admission Inquiry" className="bg-muted/50" />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="message" className="text-sm font-semibold">Message</label>
-                    <Textarea id="message" required placeholder="How can we help you?" className="min-h-[150px] bg-muted/50" />
+                    <Textarea id="message" name="message" required placeholder="How can we help you?" className="min-h-[150px] bg-muted/50" />
                   </div>
+                  <input type="hidden" name="_captcha" value="false" />
                   <Button type="submit" variant="default" className="w-full font-bold text-lg h-12">
                     Send Message
                   </Button>
@@ -148,14 +148,7 @@ export default function Contact() {
         </div>
       </div>
       
-      {/* Map Placeholder */}
-      <div className="w-full h-[400px] bg-muted relative">
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-primary/5">
-          <MapPin className="h-12 w-12 mb-4 text-primary/40" />
-          <p className="font-semibold text-lg">Interactive Map Integration Placeholder</p>
-          <p className="text-sm">Mathurapur, Assam</p>
-        </div>
-      </div>
+
     </MainLayout>
   );
 }

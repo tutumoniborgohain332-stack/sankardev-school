@@ -24,13 +24,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const staffSchema = z.object({
   name: z.string().min(1, "Name is required"),
   designation: z.string().min(1, "Designation is required"),
-  department: z.string().min(1, "Department is required"),
   joinDate: z.string().min(1, "Join date is required"),
   qualification: z.string().optional(),
   subject: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().optional(),
   isHeadmaster: z.boolean().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
 });
 
 type StaffForm = z.infer<typeof staffSchema>;
@@ -44,12 +45,12 @@ export default function StaffAdmin() {
 
   const form = useForm<StaffForm>({
     resolver: zodResolver(staffSchema),
-    defaultValues: { name: "", designation: "", department: "", joinDate: "", qualification: "", subject: "", phone: "", email: "", isHeadmaster: false },
+    defaultValues: { name: "", designation: "", joinDate: "", qualification: "", subject: "", phone: "", email: "", isHeadmaster: false, username: "", password: "" },
   });
 
   const onSubmit = (data: StaffForm) => {
     createStaff.mutate(
-      { data: { name: data.name, designation: data.designation, department: data.department, joinDate: data.joinDate, qualification: data.qualification, subject: data.subject, phone: data.phone, email: data.email, isHeadmaster: data.isHeadmaster } },
+      { data: { name: data.name, designation: data.designation, joinDate: data.joinDate, qualification: data.qualification, subject: data.subject, phone: data.phone, email: data.email, isHeadmaster: data.isHeadmaster, username: data.username || undefined, password: data.password || undefined } as any },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
@@ -96,10 +97,6 @@ export default function StaffAdmin() {
                   {form.formState.errors.designation && <p className="text-destructive text-xs">{form.formState.errors.designation.message}</p>}
                 </div>
                 <div className="space-y-1">
-                  <Label>Department *</Label>
-                  <Input {...form.register("department")} placeholder="Science" data-testid="input-staff-department" />
-                </div>
-                <div className="space-y-1">
                   <Label>Join Date *</Label>
                   <Input type="date" {...form.register("joinDate")} data-testid="input-staff-joindate" />
                 </div>
@@ -128,6 +125,21 @@ export default function StaffAdmin() {
                   />
                   <Label htmlFor="isHeadmaster">Mark as Headmaster</Label>
                 </div>
+                {/* Login credentials section */}
+                <div className="col-span-2 border-t pt-3 mt-1">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Login Credentials (Must Have)</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label>Username *</Label>
+                      <Input required {...form.register("username")} placeholder="e.g. bhupen_bora" autoComplete="off" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Password *</Label>
+                      <Input required type="password" {...form.register("password")} placeholder="Set login password" autoComplete="new-password" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">This staff member can login to the Staff Portal using these credentials.</p>
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={createStaff.isPending} data-testid="button-submit-staff">
                 {createStaff.isPending ? "Saving..." : "Add Staff Member"}
@@ -148,7 +160,6 @@ export default function StaffAdmin() {
               <TableRow className="bg-muted/50">
                 <TableHead>Name</TableHead>
                 <TableHead>Designation</TableHead>
-                <TableHead>Department</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Qualification</TableHead>
                 <TableHead>Phone</TableHead>
@@ -165,7 +176,6 @@ export default function StaffAdmin() {
                     </div>
                   </TableCell>
                   <TableCell>{member.designation}</TableCell>
-                  <TableCell>{member.department}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">{member.subject ?? "—"}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">{member.qualification ?? "—"}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">{member.phone ?? "—"}</TableCell>

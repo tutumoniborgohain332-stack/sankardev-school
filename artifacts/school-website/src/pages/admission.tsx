@@ -346,7 +346,7 @@ export default function Admission() {
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl><SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger></FormControl>
                           <SelectContent>
-                            {["Pre-Primary", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"].map(c => (
+                            {["Ankur", "Mukul", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"].map(c => (
                               <SelectItem key={c} value={c}>{c}</SelectItem>
                             ))}
                           </SelectContent>

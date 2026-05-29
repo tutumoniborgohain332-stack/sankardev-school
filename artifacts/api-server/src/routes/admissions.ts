@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAuth } from "./auth";
 import { db, admissionsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { SubmitAdmissionBody, GetAdmissionParams, UpdateAdmissionStatusBody, UpdateAdmissionStatusParams, ListAdmissionsQueryParams } from "@workspace/api-zod";
@@ -19,7 +20,7 @@ router.get("/admissions", async (req, res) => {
   })));
 });
 
-router.post("/admissions", async (req, res) => {
+router.post("/admissions", requireAuth, async (req, res) => {
   const parsed = SubmitAdmissionBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
@@ -46,7 +47,7 @@ router.get("/admissions/:id", async (req, res) => {
   });
 });
 
-router.patch("/admissions/:id", async (req, res) => {
+router.patch("/admissions/:id", requireAuth, async (req, res) => {
   const paramParsed = UpdateAdmissionStatusParams.safeParse({ id: Number(req.params.id) });
   if (!paramParsed.success) return res.status(400).json({ error: "Invalid id" });
 

@@ -3,6 +3,7 @@ import { useGetMe, useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, GraduationCap, School } from "lucide-react";
 import { useState } from "react";
+import { PWAInstallButton } from "@/components/pwa-install-button";
 
 export function Header() {
   const { data: user } = useGetMe();
@@ -51,13 +52,15 @@ export function Header() {
         {/* Main Header */}
         <div className="flex items-center justify-between py-4">
           <div className="flex items-center gap-4">
-            <School className="h-10 w-10 md:h-12 md:w-12 text-accent" />
+            <Link href="/" className="shrink-0">
+              <img src="/logo-25.png" alt="Sankardev Sishu Vidya Niketan Mathurapure" className="h-14 md:h-16 w-auto shrink-0 object-contain" />
+            </Link>
             <div>
               <h1 className="text-xl md:text-3xl font-bold font-serif text-accent drop-shadow-sm">
-                শংকৰদেৱ শিশু/বিদ্যা নিকেতন, মথুৰাপুৰ
+                শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
               </h1>
               <p className="text-sm md:text-base font-semibold tracking-wide">
-                Sankardev Shishu/Vidya Niketan, Mathurapur
+                Sankardev Sishu Vidya Niketan Mathurapure
               </p>
             </div>
           </div>
@@ -65,7 +68,7 @@ export function Header() {
           {/* Desktop Nav */}
           <nav className="hidden lg:flex gap-6 items-center font-medium">
             <Link href="/" className="hover:text-accent transition-colors">Home</Link>
-            <Link href="/about" className="hover:text-accent transition-colors">About</Link>
+
             <Link href="/academics" className="hover:text-accent transition-colors">Academics</Link>
             <Link href="/admission" className="hover:text-accent transition-colors">Admission</Link>
             <Link href="/gallery" className="hover:text-accent transition-colors">Gallery</Link>
@@ -78,6 +81,7 @@ export function Header() {
                 <Link href="/admission">Apply Now</Link>
               </Button>
             )}
+            <PWAInstallButton />
           </nav>
 
           {/* Mobile Menu Button */}
@@ -91,7 +95,7 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 right-0 bg-primary border-b border-primary-foreground/20 shadow-lg py-4 px-4 flex flex-col gap-4 font-medium text-lg">
           <Link href="/" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Home</Link>
-          <Link href="/about" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>About</Link>
+
           <Link href="/academics" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Academics</Link>
           <Link href="/admission" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Admission</Link>
           <Link href="/gallery" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Gallery</Link>
@@ -99,6 +103,9 @@ export function Header() {
           <Link href="/news" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>News</Link>
           <Link href="/results" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Results</Link>
           <Link href="/contact" className="block py-2 border-b border-primary-foreground/10" onClick={toggleMenu}>Contact</Link>
+          <div className="pt-2">
+            <PWAInstallButton />
+          </div>
         </div>
       )}
     </header>

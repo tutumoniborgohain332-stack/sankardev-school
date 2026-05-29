@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAuth } from "./auth";
 import { db, newsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { CreateNewsBody, UpdateNewsBody, UpdateNewsParams, DeleteNewsParams, ListNewsQueryParams } from "@workspace/api-zod";
@@ -21,7 +22,7 @@ router.get("/news", async (req, res) => {
   })));
 });
 
-router.post("/news", async (req, res) => {
+router.post("/news", requireAuth, async (req, res) => {
   const parsed = CreateNewsBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
 
@@ -43,7 +44,7 @@ router.post("/news", async (req, res) => {
   });
 });
 
-router.patch("/news/:id", async (req, res) => {
+router.patch("/news/:id", requireAuth, async (req, res) => {
   const paramParsed = UpdateNewsParams.safeParse({ id: Number(req.params.id) });
   if (!paramParsed.success) return res.status(400).json({ error: "Invalid id" });
 
@@ -77,7 +78,7 @@ router.patch("/news/:id", async (req, res) => {
   });
 });
 
-router.delete("/news/:id", async (req, res) => {
+router.delete("/news/:id", requireAuth, async (req, res) => {
   const parsed = DeleteNewsParams.safeParse({ id: Number(req.params.id) });
   if (!parsed.success) return res.status(400).json({ error: "Invalid id" });
 

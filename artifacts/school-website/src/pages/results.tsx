@@ -13,7 +13,7 @@ import { Search, Printer, Trophy, BookOpen, AlertCircle, CheckCircle, XCircle } 
 
 const CURRENT_YEAR = "2024-25";
 const EXAM_TYPES = ["Mid-term", "Final", "Unit-Test"] as const;
-const CLASSES = ["Pre-Primary", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+const CLASSES = ["Ankur", "Mukul", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 
 function getGradeColor(grade: string) {
   if (grade === "A+" || grade === "A") return "bg-green-100 text-green-800 border-green-200";
@@ -69,7 +69,7 @@ export default function Results() {
             </div>
             <h1 className="text-4xl font-serif font-bold text-primary mb-2">Exam Results</h1>
             <p className="text-xl font-bold text-foreground/80">পৰীক্ষাৰ ফলাফল</p>
-            <p className="text-muted-foreground mt-2">Sankardev Shishu/Vidya Niketan, Mathurapur</p>
+            <p className="text-muted-foreground mt-2">Sankardev Sishu Vidya Niketan Mathurapure</p>
           </motion.div>
 
           {/* Search Form */}
@@ -187,8 +187,8 @@ export default function Results() {
                       <Card key={result.id} className="shadow-lg border-border overflow-hidden" data-testid={`result-card-${result.id}`}>
                         {/* School Header (for print) */}
                         <div className="hidden print:block text-center py-4 border-b">
-                          <h2 className="text-xl font-bold">শংকৰদেৱ শিশু/বিদ্যা নিকেতন, মথুৰাপুৰ</h2>
-                          <p className="text-sm">Sankardev Shishu/Vidya Niketan, Mathurapur</p>
+                          <h2 className="text-xl font-bold">শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ</h2>
+                          <p className="text-sm">Sankardev Sishu Vidya Niketan Mathurapure</p>
                           <h3 className="text-lg font-bold mt-1">{result.examType} Examination — {result.academicYear}</h3>
                         </div>
 

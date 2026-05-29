@@ -45,7 +45,7 @@ export default function LoginStaff() {
           title: "Login Successful",
           description: `Welcome back, ${res.name}.`,
         });
-        if (res.role === "admin") {
+        if (res.role === "admin" || res.role === "principal" || res.role === "vice_principal") {
           setLocation("/admin");
         } else {
           setLocation("/portal/staff");

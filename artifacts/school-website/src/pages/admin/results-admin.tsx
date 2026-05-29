@@ -22,7 +22,7 @@ import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import { Plus, Trash2, Pencil, PlusCircle, MinusCircle, CheckCircle, XCircle } from "lucide-react";
 
-const CLASSES = ["Pre-Primary", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+const CLASSES = ["Ankur", "Mukul", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const EXAM_TYPES = ["Mid-term", "Final", "Unit-Test"] as const;
 const GRADES = ["A+", "A", "B+", "B", "C+", "C", "D", "F"];
 
@@ -110,7 +110,12 @@ function ResultForm({
         </div>
         <div className="space-y-1">
           <Label>Section</Label>
-          <Input value={form.section} onChange={e => setField("section", e.target.value)} placeholder="A / B / C" />
+          <Select value={form.section} onValueChange={v => setField("section", v)}>
+            <SelectTrigger><SelectValue placeholder="Select section (Optional)" /></SelectTrigger>
+            <SelectContent>
+              {["A", "B", "C", "D"].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-1">
           <Label>Exam Type *</Label>
@@ -159,16 +164,23 @@ function ResultForm({
                 <Input
                   type="number"
                   value={sub.maxMarks}
-                  onChange={e => setSubject(idx, "maxMarks", Number(e.target.value))}
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    if (val <= 100 && val >= 0) setSubject(idx, "maxMarks", val);
+                  }}
                   className="h-8 text-sm text-center"
                   min={0}
+                  max={100}
                 />
               </div>
               <div className="col-span-2">
                 <Input
                   type="number"
                   value={sub.marksObtained}
-                  onChange={e => setSubject(idx, "marksObtained", Number(e.target.value))}
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    if (val <= sub.maxMarks && val >= 0) setSubject(idx, "marksObtained", val);
+                  }}
                   className="h-8 text-sm text-center"
                   min={0}
                   max={sub.maxMarks}

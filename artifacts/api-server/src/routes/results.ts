@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAuth } from "./auth";
 import { db, resultsTable } from "@workspace/db";
 import { eq, and, SQL } from "drizzle-orm";
 import { desc } from "drizzle-orm";
@@ -27,7 +28,7 @@ router.get("/results", async (req, res) => {
   })));
 });
 
-router.post("/results", async (req, res) => {
+router.post("/results", requireAuth, async (req, res) => {
   const { rollNumber, studentName, className, section, examType, academicYear, subjects, totalMarks, marksObtained, percentage, result, rank, remarks } = req.body;
 
   if (!rollNumber || !studentName || !className || !examType || !academicYear || !subjects || totalMarks == null || marksObtained == null || !percentage || !result) {
@@ -59,7 +60,7 @@ router.post("/results", async (req, res) => {
   });
 });
 
-router.patch("/results/:id", async (req, res) => {
+router.patch("/results/:id", requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
 
@@ -92,7 +93,7 @@ router.patch("/results/:id", async (req, res) => {
   });
 });
 
-router.delete("/results/:id", async (req, res) => {
+router.delete("/results/:id", requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
 

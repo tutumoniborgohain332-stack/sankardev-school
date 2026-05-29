@@ -9,7 +9,6 @@
 export interface StaffInput {
   name: string;
   designation: string;
-  department: string;
   qualification?: string;
   subject?: string;
   phone?: string;

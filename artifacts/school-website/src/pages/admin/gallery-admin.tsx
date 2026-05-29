@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { uploadImageWithCompression, deleteImageFromSupabase } from "@/lib/supabase";
 import {
   useListGallery,
   getListGalleryQueryKey,
@@ -20,11 +21,10 @@ import { Plus, Trash2, Image as ImageIcon, Video } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 const gallerySchema = z.object({
   title: z.string().min(1, "Title is required"),
   type: z.enum(["photo", "video"]),
-  url: z.string().url("Must be a valid URL"),
+  url: z.string().min(1, "Please upload a file"),
   thumbnailUrl: z.string().optional(),
   category: z.string().optional(),
   description: z.string().optional(),
@@ -34,10 +34,21 @@ type GalleryForm = z.infer<typeof gallerySchema>;
 
 export default function GalleryAdmin() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const queryClient = useQueryClient();
   const { data: items, isLoading } = useListGallery();
   const createItem = useCreateGalleryItem();
   const deleteItem = useDeleteGalleryItem();
+
+  const categories = ["All", "Events", "Sports", "Academic", "Infrastructure", "Others"];
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const filteredItems = activeCategory === "All" 
+    ? items 
+    : items?.filter(item => {
+        if (!item.category) return activeCategory === "Others";
+        return item.category.toLowerCase() === activeCategory.toLowerCase();
+      });
 
   const form = useForm<GalleryForm>({
     resolver: zodResolver(gallerySchema),
@@ -57,8 +68,40 @@ export default function GalleryAdmin() {
     );
   };
 
-  const handleDelete = (id: number) => {
-    deleteItem.mutate({ id }, {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsUploading(true);
+    try {
+      const url = await uploadImageWithCompression(file, "assets");
+      if (url) {
+        form.setValue("url", url);
+        form.setValue("type", file.type.startsWith("video/") ? "video" : "photo");
+      }
+    } catch (error) {
+      console.error("Upload failed", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveStagingImage = async () => {
+    const url = form.getValues("url");
+    if (url && url.includes("supabase.co")) {
+      await deleteImageFromSupabase(url, "assets");
+    }
+    form.setValue("url", "");
+  };
+
+  const handleDelete = async (item: any) => {
+    // Delete from Supabase bucket first if it's a supabase URL
+    if (item.url.includes("supabase.co")) {
+      await deleteImageFromSupabase(item.url, "assets");
+    }
+    
+    // Delete from database
+    deleteItem.mutate({ id: item.id }, {
       onSuccess: () => queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() }),
     });
   };
@@ -105,23 +148,43 @@ export default function GalleryAdmin() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>URL *</Label>
-                <Input {...form.register("url")} placeholder="https://..." data-testid="input-gallery-url" />
+                <Label>Upload File (Image/Video) *</Label>
+                <Input type="file" accept="image/*,video/*" onChange={handleFileChange} disabled={isUploading || !!form.watch("url")} />
+                {isUploading && <p className="text-xs text-primary font-medium animate-pulse">Compressing and uploading to Supabase...</p>}
+                {form.watch("url") && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-xs text-green-600 font-medium">✓ File uploaded</p>
+                    <Button type="button" variant="ghost" size="sm" onClick={handleRemoveStagingImage} className="h-5 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10">
+                      Remove
+                    </Button>
+                  </div>
+                )}
                 {form.formState.errors.url && <p className="text-destructive text-xs">{form.formState.errors.url.message}</p>}
               </div>
               <div className="space-y-1">
-                <Label>Thumbnail URL</Label>
-                <Input {...form.register("thumbnailUrl")} placeholder="https://..." />
-              </div>
-              <div className="space-y-1">
                 <Label>Category</Label>
-                <Input {...form.register("category")} placeholder="Sports / Cultural / Events..." />
+                <Controller
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.filter(c => c !== "All").map(cat => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
               <div className="space-y-1">
                 <Label>Description</Label>
                 <Textarea {...form.register("description")} placeholder="Brief description..." rows={3} />
               </div>
-              <Button type="submit" className="w-full" disabled={createItem.isPending} data-testid="button-submit-gallery">
+              <Button type="submit" className="w-full" disabled={createItem.isPending || isUploading} data-testid="button-submit-gallery">
                 {createItem.isPending ? "Saving..." : "Add Item"}
               </Button>
             </form>
@@ -134,12 +197,31 @@ export default function GalleryAdmin() {
           {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-48 w-full rounded-xl" />)}
         </div>
       ) : (
-        <motion.div
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          {items?.map((item) => (
+        <>
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-6 hide-scrollbar">
+            {categories.map(cat => (
+              <Button 
+                key={cat} 
+                variant={activeCategory === cat ? "default" : "outline"}
+                onClick={() => setActiveCategory(cat)}
+                className="rounded-full h-8 text-xs px-4 flex-shrink-0"
+              >
+                {cat}
+              </Button>
+            ))}
+          </div>
+          
+          {filteredItems?.length === 0 ? (
+            <div className="text-center py-12 bg-muted/20 rounded-xl border border-dashed border-muted">
+              <p className="text-muted-foreground">No gallery items found in this category.</p>
+            </div>
+          ) : (
+            <motion.div
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {filteredItems?.map((item) => (
             <motion.div
               key={item.id}
               initial={{ scale: 0.95, opacity: 0 }}
@@ -177,7 +259,7 @@ export default function GalleryAdmin() {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(item.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={() => handleDelete(item)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -186,6 +268,8 @@ export default function GalleryAdmin() {
             </motion.div>
           ))}
         </motion.div>
+          )}
+        </>
       )}
     </div>
   );

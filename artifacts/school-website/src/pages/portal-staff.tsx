@@ -27,10 +27,12 @@ import {
   Plus, Trash2, Pencil, Check, X, BookOpen, Phone, Mail, Award,
   GraduationCap, Calendar, ChevronRight, FileText, UserPlus, CheckSquare,
 } from "lucide-react";
+import { PWAInstallButton } from "@/components/pwa-install-button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { uploadImageWithCompression, deleteImageFromSupabase } from "@/lib/supabase";
 
 type Tab = "dashboard" | "notices" | "gallery" | "results" | "staff" | "students" | "admissions" | "attendance";
 
@@ -92,7 +94,8 @@ export default function PortalStaff() {
                 {staffData?.designation && <> — {staffData.designation}</>}
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-2">
+              <PWAInstallButton />
               {user.role === "admin" && (
                 <Button variant="outline" onClick={() => setLocation("/admin")} className="border-primary text-primary hover:bg-primary/10 text-sm">
                   Admin Panel
@@ -163,7 +166,6 @@ function DashboardTab({ user, staffData, isStaffLoading }: any) {
             ) : staffData ? (
               <div className="space-y-2 text-sm text-left">
                 {[
-                  { icon: <BookOpen className="w-4 h-4 text-primary shrink-0" />, label: "Department", val: staffData.department },
                   { icon: <User className="w-4 h-4 text-primary shrink-0" />, label: "Subject", val: staffData.subject },
                   { icon: <Award className="w-4 h-4 text-primary shrink-0" />, label: "Qualification", val: staffData.qualification },
                   { icon: <Phone className="w-4 h-4 text-primary shrink-0" />, label: "Phone", val: staffData.phone || "N/A" },
@@ -391,6 +393,31 @@ function GalleryTab({ toast, queryClient }: any) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: "", url: "", thumbnailUrl: "", category: "", description: "", type: "photo" as "photo" | "video" });
   const [saving, setSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsUploading(true);
+    try {
+      const url = await uploadImageWithCompression(file, "assets");
+      if (url) {
+        setForm(f => ({ ...f, url, type: file.type.startsWith("video/") ? "video" : "photo" }));
+      }
+    } catch (error) {
+      toast({ title: "Upload failed", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveStagingImage = async () => {
+    if (form.url && form.url.includes("supabase.co")) {
+      await deleteImageFromSupabase(form.url, "assets");
+    }
+    setForm(f => ({ ...f, url: "" }));
+  };
 
   const handleAdd = async () => {
     if (!form.title.trim() || !form.url.trim()) { toast({ title: "Fill in title and URL", variant: "destructive" }); return; }
@@ -406,11 +433,17 @@ function GalleryTab({ toast, queryClient }: any) {
     } finally { setSaving(false); }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Remove this photo from gallery?")) return;
-    await deleteItem.mutateAsync({ id });
+  const handleDelete = async (item: any) => {
+    if (!confirm("Are you sure you want to delete this item?")) return;
+    
+    // Delete from Supabase bucket first if it's a supabase URL
+    if (item.url.includes("supabase.co")) {
+      await deleteImageFromSupabase(item.url, "assets");
+    }
+    
+    await deleteItem.mutateAsync({ id: item.id });
     queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
-    toast({ title: "Photo removed" });
+    toast({ title: "Deleted from gallery" });
   };
 
   return (
@@ -443,12 +476,17 @@ function GalleryTab({ toast, queryClient }: any) {
               </div>
             </div>
             <div>
-              <Label>Image/Video URL *</Label>
-              <Input value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} placeholder="https://..." className="mt-1" />
-            </div>
-            <div>
-              <Label>Thumbnail URL (optional)</Label>
-              <Input value={form.thumbnailUrl} onChange={e => setForm(f => ({ ...f, thumbnailUrl: e.target.value }))} placeholder="https://..." className="mt-1" />
+              <Label>Upload File (Image/Video) *</Label>
+              <Input type="file" accept="image/*,video/*" onChange={handleFileChange} disabled={isUploading || !!form.url} className="mt-1" />
+              {isUploading && <p className="text-xs text-primary font-medium animate-pulse mt-1">Compressing and uploading...</p>}
+              {form.url && (
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-xs text-green-600 font-medium">✓ File uploaded</p>
+                  <Button type="button" variant="ghost" size="sm" onClick={handleRemoveStagingImage} className="h-5 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10">
+                    Remove
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -472,7 +510,7 @@ function GalleryTab({ toast, queryClient }: any) {
             </div>
             {form.url && <img src={form.url} alt="preview" className="h-32 rounded-lg object-cover border" onError={e => (e.currentTarget.style.display = "none")} />}
             <div className="flex gap-3">
-              <Button onClick={handleAdd} disabled={saving} className="flex-1">{saving ? "Uploading..." : "Add to Gallery"}</Button>
+              <Button onClick={handleAdd} disabled={saving || isUploading} className="flex-1">{saving ? "Uploading..." : "Add to Gallery"}</Button>
               <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
             </div>
           </CardContent>
@@ -491,8 +529,8 @@ function GalleryTab({ toast, queryClient }: any) {
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 gap-2 p-2">
                 <p className="text-white text-xs font-semibold text-center line-clamp-2">{item.title}</p>
                 {item.category && <Badge className="text-xs bg-primary/80 text-white border-0">{item.category}</Badge>}
-                <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)} className="mt-1 h-7 text-xs">
-                  <Trash2 className="w-3 h-3 mr-1" /> Remove
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(item)} className="mt-1 h-7 text-xs">
+                  <Trash2 className="w-3 h-3 mr-1" /> Delete
                 </Button>
               </div>
             </div>
@@ -700,19 +738,19 @@ function AddStaffTab({ toast, queryClient }: any) {
   const { data: staffList } = useListStaff();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    name: "", designation: "", department: "", qualification: "", subject: "",
+    name: "", designation: "", qualification: "", subject: "",
     phone: "", email: "", joinDate: new Date().toISOString().split("T")[0],
     photoUrl: "", username: "", password: "", isHeadmaster: false,
   });
 
   const handleSave = async () => {
-    if (!form.name || !form.designation || !form.department) { toast({ title: "Fill required fields (Name, Designation, Department)", variant: "destructive" }); return; }
+    if (!form.name || !form.designation) { toast({ title: "Fill required fields (Name, Designation)", variant: "destructive" }); return; }
     if (form.username && !form.password) { toast({ title: "Password required when username is set", variant: "destructive" }); return; }
     setSaving(true);
     try {
       await createStaff.mutateAsync({
         data: {
-          name: form.name, designation: form.designation, department: form.department,
+          name: form.name, designation: form.designation,
           qualification: form.qualification || undefined, subject: form.subject || undefined,
           phone: form.phone || undefined, email: form.email || undefined, joinDate: form.joinDate,
           photoUrl: form.photoUrl || undefined, username: form.username || undefined,
@@ -721,7 +759,7 @@ function AddStaffTab({ toast, queryClient }: any) {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/staff"] });
       toast({ title: `${form.name} added as staff member!` });
-      setForm({ name: "", designation: "", department: "", qualification: "", subject: "", phone: "", email: "", joinDate: new Date().toISOString().split("T")[0], photoUrl: "", username: "", password: "", isHeadmaster: false });
+      setForm({ name: "", designation: "", qualification: "", subject: "", phone: "", email: "", joinDate: new Date().toISOString().split("T")[0], photoUrl: "", username: "", password: "", isHeadmaster: false });
     } catch (err: any) {
       const msg = err?.response?.data?.error || "Failed to add staff member";
       toast({ title: msg, variant: "destructive" });
@@ -738,7 +776,6 @@ function AddStaffTab({ toast, queryClient }: any) {
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2"><Label>Full Name *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Teacher's full name" className="mt-1" /></div>
               <div><Label>Designation *</Label><Input value={form.designation} onChange={e => setForm(f => ({ ...f, designation: e.target.value }))} placeholder="e.g. Teacher" className="mt-1" /></div>
-              <div><Label>Department *</Label><Input value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))} placeholder="e.g. Science" className="mt-1" /></div>
               <div><Label>Qualification</Label><Input value={form.qualification} onChange={e => setForm(f => ({ ...f, qualification: e.target.value }))} placeholder="e.g. M.Sc, B.Ed" className="mt-1" /></div>
               <div><Label>Subject</Label><Input value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="e.g. Mathematics" className="mt-1" /></div>
               <div><Label>Phone</Label><Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="mt-1" /></div>
@@ -781,7 +818,7 @@ function AddStaffTab({ toast, queryClient }: any) {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate">{s.name}</p>
-                    <p className="text-xs text-muted-foreground">{s.designation} — {s.department}</p>
+                    <p className="text-xs text-muted-foreground">{s.designation}</p>
                   </div>
                   {s.isHeadmaster && <Badge className="text-xs bg-primary/10 text-primary border-0">HM</Badge>}
                 </div>
@@ -919,7 +956,7 @@ function AdmissionsTab({ toast, queryClient }: any) {
 }
 
 /* ─── Attendance Tab ─── */
-const CLASSES = ["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"];
+const CLASSES = ["Ankur", "Mukul", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const SECTIONS = ["A", "B", "C", "D"];
 
 const NO_SECTION = "_all";

@@ -2,7 +2,8 @@ import { Switch, Route, useLocation } from "wouter";
 import { useGetMe, useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { LayoutDashboard, Users, UserSquare2, Image as ImageIcon, FileText, UserPlus, LogOut, Loader2, Award } from "lucide-react";
+import { LayoutDashboard, Users, UserSquare2, Image as ImageIcon, FileText, UserPlus, LogOut, Loader2, Award, CalendarCheck } from "lucide-react";
+import { PWAInstallButton } from "@/components/pwa-install-button";
 import { motion } from "framer-motion";
 import Dashboard from "./dashboard";
 import StudentsAdmin from "./students";
@@ -11,6 +12,7 @@ import GalleryAdmin from "./gallery-admin";
 import NewsAdmin from "./news-admin";
 import AdmissionsAdmin from "./admissions-admin";
 import ResultsAdmin from "./results-admin";
+import AttendanceAdmin from "./attendance-admin";
 import { useEffect } from "react";
 
 export default function AdminShell() {
@@ -18,13 +20,15 @@ export default function AdminShell() {
   const { data: user, isLoading } = useGetMe();
   const logout = useLogout();
 
+  const isPrivileged = user?.role === "admin" || user?.role === "principal" || user?.role === "vice_principal";
+
   useEffect(() => {
     if (!isLoading) {
-      if (!user || user.role !== "admin") {
+      if (!user || !isPrivileged) {
         setLocation("/login/staff");
       }
     }
-  }, [user, isLoading, setLocation]);
+  }, [user, isLoading, setLocation, isPrivileged]);
 
   if (isLoading) {
     return (
@@ -34,7 +38,7 @@ export default function AdminShell() {
     );
   }
 
-  if (!user || user.role !== "admin") {
+  if (!user || !isPrivileged) {
     return null;
   }
 
@@ -45,6 +49,7 @@ export default function AdminShell() {
     { label: "Gallery", href: "/admin/gallery", icon: ImageIcon },
     { label: "News", href: "/admin/news", icon: FileText },
     { label: "Admissions", href: "/admin/admissions", icon: UserPlus },
+    { label: "Attendance", href: "/admin/attendance", icon: CalendarCheck },
     { label: "Results", href: "/admin/results", icon: Award },
   ];
 
@@ -80,7 +85,8 @@ export default function AdminShell() {
           })}
         </nav>
         
-        <div className="p-4 border-t border-primary-foreground/10">
+        <div className="p-4 border-t border-primary-foreground/10 space-y-2">
+          <PWAInstallButton />
           <Button 
             variant="ghost" 
             className="w-full justify-start text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
@@ -101,6 +107,7 @@ export default function AdminShell() {
             <Route path="/admin/gallery" component={GalleryAdmin} />
             <Route path="/admin/news" component={NewsAdmin} />
             <Route path="/admin/admissions" component={AdmissionsAdmin} />
+            <Route path="/admin/attendance" component={AttendanceAdmin} />
             <Route path="/admin/results" component={ResultsAdmin} />
           </Switch>
         </div>
