@@ -5,9 +5,9 @@
   "framework": null,
   "functions": {
     "artifacts/api-server/dist/index.mjs": {
-      "runtime": "nodejs22.x",
       "maxDuration": 30,
-      "memory": 512
+      "memory": 512,
+      "includeFiles": "artifacts/school-website/dist/public/**"
     }
   },
   "routes": [
