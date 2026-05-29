@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2",
+    "@vercel/analytics": "^2.0.1",
     "browser-image-compression": "^2.0.2"
   }
 }
