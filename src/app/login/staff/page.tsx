@@ -1,0 +1,135 @@
+"use client";
+
+import { MainLayout } from "@/components/layout/main-layout";
+import { useLogin } from "@/lib/api-client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { Briefcase, User, Lock } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+const loginSchema = z.object({
+  username: z.string().min(3, "Username is required"),
+  password: z.string().min(6, "Password is required"),
+});
+
+export default function LoginStaff() {
+  const { toast } = useToast();
+  const router = useRouter();
+  const login = useLogin();
+
+  const form = useForm<z.infer<typeof loginSchema>>({
+    // @ts-ignore
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof loginSchema>) {
+    // Determine role based on username logic or default to staff
+    const role = values.username === "admin" ? "admin" : "staff";
+    
+    login.mutate({
+      username: values.username,
+      password: values.password,
+      role: role as any,
+    }, {
+      onSuccess: (res) => {
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${res.name}.`,
+        });
+        if (res.role === "admin" || res.role === "principal" || res.role === "vice_principal") {
+          router.push("/admin");
+        } else {
+          router.push("/portal/staff");
+        }
+      },
+      onError: () => {
+        toast({
+          title: "Login Failed",
+          description: "Invalid credentials. Please try again.",
+          variant: "destructive",
+        });
+      }
+    });
+  }
+
+  return (
+    <MainLayout>
+      <div className="min-h-[80vh] flex items-center justify-center bg-muted/30 py-12 px-4 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[50%] bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[50%] bg-primary/5 rounded-full blur-3xl" />
+        
+        <Card className="w-full max-w-md shadow-2xl border-t-4 border-t-accent relative z-10">
+          <CardHeader className="text-center pb-8 pt-10">
+            <div className="mx-auto w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center mb-6">
+              <Briefcase className="w-10 h-10 text-accent" />
+            </div>
+            <CardTitle className="text-3xl font-serif text-foreground">Staff Portal</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Sign in with your staff or admin credentials.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                          <Input placeholder="Enter your username" className="pl-10 h-12" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                          <Input type="password" placeholder="Enter password" className="pl-10 h-12" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" variant="default" className="w-full h-12 text-lg font-bold shadow-md" disabled={login.isPending}>
+                  {login.isPending ? "Signing in..." : "Sign In"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex justify-center border-t py-6 bg-muted/10">
+            <p className="text-sm text-muted-foreground">
+              Are you a student? <Link href="/login/student" className="text-accent font-bold hover:underline">Student Login</Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
+    </MainLayout>
+  );
+}
+
+
