@@ -23,7 +23,7 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
   }, []);
 
   return (
-    <section className="relative h-[80vh] min-h-[500px] max-h-[800px] w-full overflow-hidden" style={{ background: "hsl(28, 95%, 50%)" }}>
+    <section className="relative h-[80vh] min-h-[500px] max-h-[800px] w-full overflow-hidden bg-black">
       <AnimatePresence mode="popLayout">
         <motion.img
           key={currentImageIndex}
