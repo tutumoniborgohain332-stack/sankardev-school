@@ -44,7 +44,7 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.8 }}
-          className="max-w-4xl mx-auto backdrop-blur-md bg-black/30 border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl"
+          className="max-w-4xl mx-auto p-4 md:p-8"
         >
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif text-white mb-4 drop-shadow-lg">
             শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
