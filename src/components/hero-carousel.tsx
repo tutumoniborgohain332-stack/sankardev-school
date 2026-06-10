@@ -28,33 +28,33 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
         <motion.img
           key={currentImageIndex}
           src={HERO_IMAGES[currentImageIndex]}
-          alt="School Hero"
+          alt={`School Campus ${currentImageIndex + 1}`}
           className="absolute inset-0 w-full h-full object-cover"
           initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 0.55, scale: 1 }}
+          animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.5, ease: "easeInOut" }}
         />
       </AnimatePresence>
       
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.8 }}
-          className="max-w-4xl mx-auto"
+          className="max-w-4xl mx-auto backdrop-blur-md bg-black/30 border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl"
         >
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif text-white mb-4 drop-shadow-lg">
             শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
           </h1>
-          <h2 className="text-2xl md:text-3xl text-white/90 mb-3 font-serif">Sankardev Sishu Vidya Niketan Mathurapure</h2>
-          <span className="text-xl md:text-2xl text-white/80 block mb-8">Mathurapur</span>
+          <h2 className="text-2xl md:text-3xl text-white/95 mb-3 font-serif">Sankardev Sishu Vidya Niketan Mathurapur</h2>
+          <span className="text-xl md:text-2xl text-primary font-bold block mb-8 uppercase tracking-[0.2em]">Mathurapur</span>
           <p className="text-base md:text-lg text-white/90 mb-10 max-w-2xl mx-auto font-medium drop-shadow-md"></p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {admissionOpen && (
-              <Button asChild size="lg" className="font-bold text-lg px-8 py-6 rounded-full shadow-xl hover:scale-105 transition-transform bg-white text-primary hover:bg-white/90">
+              <Button asChild size="lg" className="font-bold text-lg px-8 py-6 rounded-full shadow-[0_8px_30px_rgb(232,117,10,0.3)] hover:shadow-[0_8px_30px_rgb(232,117,10,0.5)] hover:-translate-y-1 transition-all active:scale-95 bg-primary text-white hover:bg-primary/90">
                 <Link href="/admission">Admissions Open</Link>
               </Button>
             )}

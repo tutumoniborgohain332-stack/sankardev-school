@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, integer, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -28,6 +28,12 @@ export const studentsTable = pgTable("students", {
   userId: integer("user_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+}, (table) => {
+  return {
+    classIdx: index("students_class_idx").on(table.className),
+    rollIdx: index("students_roll_idx").on(table.rollNumber),
+    sectionIdx: index("students_section_idx").on(table.section),
+  };
 });
 
 export const insertStudentSchema = createInsertSchema(studentsTable).omit({ id: true, createdAt: true, updatedAt: true });

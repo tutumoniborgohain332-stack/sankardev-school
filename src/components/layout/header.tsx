@@ -17,7 +17,7 @@ export function Header() {
   const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground shadow-md">
+    <header className="sticky top-0 z-50 w-full border-b border-primary-foreground/10 backdrop-blur-md bg-primary/90 text-primary-foreground shadow-md">
       <div className="container mx-auto px-4">
         {/* Top bar */}
         <div className="flex justify-between items-center py-2 border-b border-primary-foreground/20 text-xs md:text-sm">
@@ -64,7 +64,7 @@ export function Header() {
               <img src="/logo-25.png" alt="Sankardev Sishu Vidya Niketan Mathurapure" className="h-14 md:h-16 w-auto shrink-0 object-contain" />
             </Link>
             <div>
-              <h1 className="text-xl md:text-3xl font-bold font-serif text-accent drop-shadow-sm">
+              <h1 className="text-xl md:text-3xl font-bold font-serif text-white drop-shadow-sm">
                 শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
               </h1>
               <p className="text-sm md:text-base font-semibold tracking-wide">
@@ -75,17 +75,17 @@ export function Header() {
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex gap-6 items-center font-medium">
-            <Link href="/" className="hover:text-accent transition-colors">Home</Link>
+            <Link href="/" className="hover:text-white/80 transition-colors">Home</Link>
 
-            <Link href="/academics" className="hover:text-accent transition-colors">Academics</Link>
-            {admissionOpen && <Link href="/admission" className="hover:text-accent transition-colors">Admission</Link>}
-            <Link href="/gallery" className="hover:text-accent transition-colors">Gallery</Link>
-            <Link href="/staff" className="hover:text-accent transition-colors">Staff</Link>
-            <Link href="/news" className="hover:text-accent transition-colors">News</Link>
-            <Link href="/results" className="hover:text-accent transition-colors">Results</Link>
-            <Link href="/contact" className="hover:text-accent transition-colors">Contact</Link>
+            <Link href="/academics" className="hover:text-white/80 transition-colors">Academics</Link>
+            {admissionOpen && <Link href="/admission" className="hover:text-white/80 transition-colors">Admission</Link>}
+            <Link href="/gallery" className="hover:text-white/80 transition-colors">Gallery</Link>
+            <Link href="/staff" className="hover:text-white/80 transition-colors">Staff</Link>
+            <Link href="/news" className="hover:text-white/80 transition-colors">News</Link>
+            <Link href="/results" className="hover:text-white/80 transition-colors">Results</Link>
+            <Link href="/contact" className="hover:text-white/80 transition-colors">Contact</Link>
             {(!user && admissionOpen) && (
-              <Button asChild variant="outline" className="font-bold ml-2 border-white text-white hover:bg-white hover:text-primary">
+              <Button asChild variant="outline" className="font-bold ml-2 border-white text-white hover:bg-white hover:text-primary transition-all active:scale-95 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)]">
                 <Link href="/admission">Apply Now</Link>
               </Button>
             )}
@@ -93,7 +93,7 @@ export function Header() {
           </nav>
 
           {/* Mobile Menu Button */}
-          <button className="lg:hidden p-2" onClick={toggleMenu} aria-label="Toggle menu">
+          <button className="lg:hidden p-2" onClick={toggleMenu} aria-label="Toggle menu" aria-expanded={isMobileMenuOpen}>
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>

@@ -4,18 +4,72 @@ import { db } from "./db";
 import { usersTable } from "./db/schema";
 import { eq } from "drizzle-orm";
 
-const SALT = "school_salt_2024";
 const SESSION_COOKIE_NAME = "school_session";
-const SESSION_SECRET = process.env.AUTH_SECRET || "default_dev_secret_key_1234567890";
+const SESSION_SECRET = process.env.AUTH_SECRET;
 
-/** Hashes a password exactly like the old system */
-export function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update(password + SALT).digest("hex");
+if (!SESSION_SECRET && process.env.NODE_ENV === "production") {
+  throw new Error("AUTH_SECRET environment variable is missing in production!");
+}
+
+const DEV_SECRET = SESSION_SECRET || "default_dev_secret_key_1234567890";
+
+/** Hashes a password using scrypt asynchronously. Format: salt:hash */
+export async function hashPassword(password: string, salt: string = crypto.randomBytes(16).toString("hex")): Promise<string> {
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+      if (err) reject(err);
+      else resolve(`${salt}:${derivedKey.toString("hex")}`);
+    });
+  });
+}
+
+const DUMMY_HASH = "00000000000000000000000000000000:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
+/** Verifies a password against a stored scrypt hash asynchronously and safely */
+export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
+  let hashToVerify = storedHash;
+  let isDummy = false;
+  if (!storedHash || !storedHash.includes(":")) {
+    hashToVerify = DUMMY_HASH;
+    isDummy = true;
+  }
+  
+  const [salt, key] = hashToVerify.split(":");
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      try {
+        const keyBuffer = Buffer.from(key, "hex");
+        if (keyBuffer.length !== derivedKey.length) {
+          resolve(false);
+          return;
+        }
+        const isEqual = crypto.timingSafeEqual(keyBuffer, derivedKey);
+        resolve(isDummy ? false : isEqual);
+      } catch (e) {
+        resolve(false);
+      }
+    });
+  });
 }
 
 /** Signs a token (simple HMAC for session) */
-function signToken(payload: string): string {
-  return crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
+export function signToken(payload: string): string {
+  return crypto.createHmac("sha256", DEV_SECRET).update(payload).digest("hex");
+}
+
+export function verifySignature(payload: string, signature: string): boolean {
+  try {
+    const expectedSignature = Buffer.from(signToken(payload), "hex");
+    const actualSignature = Buffer.from(signature, "hex");
+    if (expectedSignature.length !== actualSignature.length) return false;
+    return crypto.timingSafeEqual(expectedSignature, actualSignature);
+  } catch (e) {
+    return false;
+  }
 }
 
 /** Sets a secure session cookie */
@@ -40,8 +94,11 @@ export async function getSession(): Promise<{ userId: number; role: string } | n
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 
-  const [payload, signature] = token.split(".");
-  if (signToken(payload) !== signature) return null; // Invalid signature
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  const [payload, signature] = parts;
+  
+  if (!verifySignature(payload, signature)) return null; // Invalid signature
 
   const [userIdStr, role, timestamp] = payload.split(":");
   const userId = parseInt(userIdStr, 10);

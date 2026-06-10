@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { studentsTable } from "@/lib/db/schema";
+import { studentsTable, insertStudentSchema } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSession, isPrivilegedRole } from "@/lib/auth";
 
@@ -15,7 +15,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!user || !isPrivilegedRole(user.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
-    const data = await request.json();
+    const rawData = await request.json();
+    const data = insertStudentSchema.partial().parse(rawData);
+
     const [student] = await db
       .update(studentsTable)
       .set(data)

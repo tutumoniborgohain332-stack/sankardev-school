@@ -4,16 +4,17 @@ import { useGetMe, useLogout } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, UserSquare2, Image as ImageIcon, FileText, UserPlus, LogOut, Loader2, Award, CalendarCheck } from "lucide-react";
+import { LayoutDashboard, Users, UserSquare2, Image as ImageIcon, FileText, UserPlus, LogOut, Loader2, Award, CalendarCheck, Menu, X } from "lucide-react";
 import { PWAInstallButton } from "@/components/pwa-install-button";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: user, isLoading } = useGetMe();
   const logout = useLogout();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const isPrivileged = user?.role === "admin" || user?.role === "principal" || user?.role === "vice_principal";
 
@@ -24,6 +25,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     }
   }, [user, isLoading, isPrivileged, router]);
+
+  // Close sidebar on route change on mobile
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
 
   if (isLoading) {
     return (
@@ -49,15 +55,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background relative">
+      {/* Mobile Topbar */}
+      <div className="md:hidden fixed top-0 w-full z-20 bg-primary text-primary-foreground p-4 flex justify-between items-center shadow-md">
+        <h2 className="font-bold font-serif">Admin Portal</h2>
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+          {isSidebarOpen ? <X /> : <Menu />}
+        </button>
+      </div>
+
       <motion.aside 
-        initial={{ x: -280 }}
-        animate={{ x: 0 }}
-        className="w-64 flex-shrink-0 bg-primary text-primary-foreground flex flex-col shadow-xl z-10 sticky top-0 h-screen"
+        className={`w-64 flex-shrink-0 bg-primary text-primary-foreground flex flex-col shadow-xl z-30 h-screen fixed md:sticky top-0 transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
-        <div className="p-6 border-b border-primary-foreground/10">
-          <h2 className="text-xl font-bold font-serif tracking-tight">Admin Portal</h2>
-          <p className="text-xs text-primary-foreground/70 mt-1 truncate">{user.name}</p>
+        <div className="p-6 border-b border-primary-foreground/10 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold font-serif tracking-tight">Admin Portal</h2>
+            <p className="text-xs text-primary-foreground/70 mt-1 truncate">{user.name}</p>
+          </div>
+          <button className="md:hidden" onClick={() => setIsSidebarOpen(false)}>
+            <X className="w-5 h-5" />
+          </button>
         </div>
         
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
@@ -92,8 +109,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Button>
         </div>
       </motion.aside>
+
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 md:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="Close Sidebar"
+          onKeyDown={(e) => e.key === 'Escape' && setIsSidebarOpen(false)}
+        />
+      )}
       
-      <main className="flex-1 overflow-y-auto w-full min-w-0">
+      <main className="flex-1 overflow-y-auto w-full min-w-0 pt-16 md:pt-0">
         <div className="p-6 md:p-8 max-w-7xl mx-auto">
           {children}
         </div>

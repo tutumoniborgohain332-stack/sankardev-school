@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { useListGallery } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,6 +37,17 @@ export default function Gallery() {
       setLightboxIndex(lightboxIndex < filteredPhotos.length - 1 ? lightboxIndex + 1 : 0);
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (lightboxIndex === null) return;
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") prevPhoto();
+      if (e.key === "ArrowRight") nextPhoto();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxIndex, filteredPhotos.length]);
 
   return (
     <MainLayout>
@@ -190,16 +201,16 @@ export default function Gallery() {
 
             <button
               onClick={prevPhoto}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-4 hidden md:block"
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-2 md:p-4 bg-black/20 hover:bg-black/40 rounded-full transition-colors"
             >
-              <ChevronLeft className="w-10 h-10" />
+              <ChevronLeft className="w-8 h-8 md:w-10 md:h-10" />
             </button>
 
             <button
               onClick={nextPhoto}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-4 hidden md:block"
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-2 md:p-4 bg-black/20 hover:bg-black/40 rounded-full transition-colors"
             >
-              <ChevronRight className="w-10 h-10" />
+              <ChevronRight className="w-8 h-8 md:w-10 md:h-10" />
             </button>
 
             <div className="max-w-5xl w-full max-h-[85vh] flex flex-col">

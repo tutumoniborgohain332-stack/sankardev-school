@@ -48,17 +48,23 @@ export default function PortalStaff() {
   const { data: staffList, isLoading: isStaffLoading } = useListStaff();
   const logout = useLogout();
 
+  const isPrivilegedRole = (role: string | undefined) => role === "admin";
+
   useEffect(() => {
     if (!isAuthLoading && (!user || (user.role !== "staff" && user.role !== "admin"))) {
       router.push("/login/staff");
     }
   }, [user, isAuthLoading, router]);
 
-  if (isAuthLoading || !user) {
+  if (isAuthLoading || !user || (!isPrivilegedRole(user?.role) && user?.role !== "staff")) {
     return (
       <MainLayout>
-        <div className="container mx-auto px-4 py-16">
-          <Skeleton className="h-64 w-full rounded-2xl mb-8" />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-40 w-full mb-8" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Skeleton className="h-[400px] md:col-span-2" />
+            <Skeleton className="h-[400px]" />
+          </div>
         </div>
       </MainLayout>
     );

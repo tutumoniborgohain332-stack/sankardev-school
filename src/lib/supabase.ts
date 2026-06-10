@@ -1,49 +1,41 @@
-import { createClient } from "@supabase/supabase-js";
 import imageCompression from "browser-image-compression";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key";
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function uploadImageWithCompression(file: File, bucketName: string = "assets"): Promise<string | null> {
   try {
     const isImage = file.type.startsWith("image/");
-    let fileToUpload = file;
-
-    // Compress if it's an image
-    if (isImage) {
-      const options = {
-        maxSizeMB: 1, // Max size 1MB
-        maxWidthOrHeight: 1920,
-        useWebWorker: true,
-      };
-      fileToUpload = await imageCompression(file, options);
+    if (!isImage) {
+      throw new Error("Only image files are allowed.");
     }
 
-    // Generate unique file name
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-    const filePath = `uploads/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from(bucketName)
-      .upload(filePath, fileToUpload, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-    if (error) {
-      console.error("Supabase upload error:", error);
-      throw error;
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ["jpg", "jpeg", "png", "webp"];
+    if (!fileExt || !allowedExtensions.includes(fileExt)) {
+      throw new Error("Invalid image extension. Allowed: jpg, jpeg, png, webp.");
     }
 
-    // Get public URL
-    const { data: publicUrlData } = supabase.storage
-      .from(bucketName)
-      .getPublicUrl(filePath);
+    const options = {
+      maxSizeMB: 1, // Max size 1MB
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+    const fileToUpload = await imageCompression(file, options);
 
-    return publicUrlData.publicUrl;
+    const formData = new FormData();
+    formData.append("file", fileToUpload);
+    formData.append("bucketName", bucketName);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const { error } = await res.json();
+      throw new Error(error || "Upload failed");
+    }
+
+    const { url } = await res.json();
+    return url;
   } catch (error) {
     console.error("Error uploading file:", error);
     return null;
@@ -52,23 +44,13 @@ export async function uploadImageWithCompression(file: File, bucketName: string 
 
 export async function deleteImageFromSupabase(publicUrl: string, bucketName: string = "assets"): Promise<boolean> {
   try {
-    // Extract file path from public URL
-    // Public URL format: https://[project].supabase.co/storage/v1/object/public/[bucketName]/[filePath]
-    const urlParts = publicUrl.split(`/public/${bucketName}/`);
-    if (urlParts.length !== 2) return false;
-    
-    const filePath = urlParts[1];
-    
-    const { error } = await supabase.storage
-      .from(bucketName)
-      .remove([filePath]);
-      
-    if (error) {
-      console.error("Supabase delete error:", error);
-      return false;
-    }
-    
-    return true;
+    const res = await fetch("/api/upload", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ publicUrl, bucketName }),
+    });
+
+    return res.ok;
   } catch (error) {
     console.error("Error deleting file:", error);
     return false;

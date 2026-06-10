@@ -1,7 +1,7 @@
 "use client";
 
 import { MainLayout } from "@/components/layout/main-layout";
-import { useGetMe, useListStudents, useLogout, getGetMeQueryKey } from "@/lib/api-client";
+import { useGetMe, useListStudents, useLogout, getGetMeQueryKey, useListNews } from "@/lib/api-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function PortalStudent() {
   const router = useRouter();
   const { data: user, isLoading: isAuthLoading } = useGetMe({ query: { queryKey: getGetMeQueryKey() } });
-  const { data: students, isLoading: isStudentsLoading } = useListStudents({ search: user?.username });
+  const { data: students, isLoading: isStudentsLoading } = useListStudents({});
+  const { data: news, isLoading: isNewsLoading } = useListNews();
   const logout = useLogout();
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export default function PortalStudent() {
     }
   }, [user, isAuthLoading, router]);
 
-  if (isAuthLoading || !user) {
+  if (isAuthLoading || !user || user.role !== "student") {
     return (
       <MainLayout>
         <div className="container mx-auto px-4 py-16">
@@ -37,13 +38,15 @@ export default function PortalStudent() {
     );
   }
 
-  const studentData = students?.find(s => s.username === user.username);
+  const studentData = students && students.length > 0 ? students[0] : null;
 
   const handleLogout = () => {
     logout.mutate(undefined, {
       onSuccess: () => router.push("/")
     });
   };
+
+  const recentNews = news?.filter((n: any) => !n.isImportant).slice(0, 3) || [];
 
   return (
     <MainLayout>
@@ -126,25 +129,25 @@ export default function PortalStudent() {
             <div className="lg:col-span-2 space-y-8">
               {/* Quick Actions */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <Card className="hover:border-primary/50 hover:shadow-md cursor-pointer transition-all">
+                <Card className="hover:border-primary/50 hover:shadow-md transition-all opacity-50 cursor-not-allowed" title="Coming Soon">
                   <CardContent className="p-6 text-center">
                     <FileText className="w-8 h-8 mx-auto text-primary mb-3" />
                     <h3 className="font-semibold text-sm">Report Cards</h3>
                   </CardContent>
                 </Card>
-                <Card className="hover:border-primary/50 hover:shadow-md cursor-pointer transition-all">
+                <Card className="hover:border-primary/50 hover:shadow-md transition-all opacity-50 cursor-not-allowed" title="Coming Soon">
                   <CardContent className="p-6 text-center">
                     <Calendar className="w-8 h-8 mx-auto text-accent mb-3" />
                     <h3 className="font-semibold text-sm">Timetable</h3>
                   </CardContent>
                 </Card>
-                <Card className="hover:border-primary/50 hover:shadow-md cursor-pointer transition-all">
+                <Card className="hover:border-primary/50 hover:shadow-md transition-all opacity-50 cursor-not-allowed" title="Coming Soon">
                   <CardContent className="p-6 text-center">
                     <BookOpen className="w-8 h-8 mx-auto text-secondary mb-3" />
                     <h3 className="font-semibold text-sm">Library</h3>
                   </CardContent>
                 </Card>
-                <Card className="hover:border-primary/50 hover:shadow-md cursor-pointer transition-all">
+                <Card className="hover:border-primary/50 hover:shadow-md transition-all opacity-50 cursor-not-allowed" title="Coming Soon">
                   <CardContent className="p-6 text-center">
                     <Award className="w-8 h-8 mx-auto text-primary mb-3" />
                     <h3 className="font-semibold text-sm">Certificates</h3>
@@ -161,18 +164,28 @@ export default function PortalStudent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex gap-4 p-4 rounded-lg bg-muted/20 border hover:bg-muted/40 transition-colors">
+                    {isNewsLoading ? (
+                      <div className="space-y-4">
+                        <Skeleton className="h-24 w-full rounded-lg" />
+                        <Skeleton className="h-24 w-full rounded-lg" />
+                      </div>
+                    ) : recentNews.length > 0 ? recentNews.map((item: any) => {
+                      const date = new Date(item.publishedAt);
+                      return (
+                      <div key={item.id} className="flex gap-4 p-4 rounded-lg bg-muted/20 border hover:bg-muted/40 transition-colors">
                         <div className="flex flex-col items-center justify-center bg-background rounded-md border min-w-[60px] p-2 text-center h-fit">
-                          <span className="text-xs text-muted-foreground font-bold uppercase">MAY</span>
-                          <span className="text-xl font-bold text-primary">1{i}</span>
+                          <span className="text-xs text-muted-foreground font-bold uppercase">{date.toLocaleString('default', { month: 'short' })}</span>
+                          <span className="text-xl font-bold text-primary">{date.getDate()}</span>
                         </div>
                         <div>
-                          <h4 className="font-bold text-foreground mb-1">Upcoming Class Test Series</h4>
-                          <p className="text-sm text-muted-foreground">The schedule for the upcoming class tests has been published. Please review your respective subjects.</p>
+                          <h4 className="font-bold text-foreground mb-1">{item.title}</h4>
+                          {item.titleAssamese && <h4 className="font-bold text-foreground mb-1 opacity-90">{item.titleAssamese}</h4>}
+                          <p className="text-sm text-muted-foreground">{item.content}</p>
+                          {item.contentAssamese && <p className="text-sm text-muted-foreground mt-1 opacity-90">{item.contentAssamese}</p>}
                         </div>
                       </div>
-                    ))}
+                      )
+                    }) : <p className="text-muted-foreground text-sm">No recent notices.</p>}
                   </div>
                 </CardContent>
               </Card>

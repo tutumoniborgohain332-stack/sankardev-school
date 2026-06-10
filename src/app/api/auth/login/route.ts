@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { usersTable } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { hashPassword, setSession } from "@/lib/auth";
+import { verifyPassword, setSession } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,8 +18,9 @@ export async function POST(req: NextRequest) {
       .where(eq(usersTable.username, username))
       .limit(1);
 
-    if (!user || user.passwordHash !== hashPassword(password)) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    const isValid = await verifyPassword(password, user?.passwordHash || "");
+    if (!user || !isValid) {
+      return NextResponse.json({ error: "Invalid username or password" }, { status: 401 });
     }
 
     await setSession(user.id, user.role);

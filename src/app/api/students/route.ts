@@ -1,17 +1,33 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { studentsTable } from "@/lib/db/schema";
+import { studentsTable, usersTable, insertStudentSchema } from "@/lib/db/schema";
 import { eq, ilike, and, SQL } from "drizzle-orm";
-import { getSession, isPrivilegedRole } from "@/lib/auth";
+import { getSession, isPrivilegedRole, hashPassword } from "@/lib/auth";
 
 export async function GET(request: Request) {
+  const user = await getSession();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { searchParams } = new URL(request.url);
   const className = searchParams.get("class");
   const search = searchParams.get("search");
 
   const conditions: SQL[] = [];
-  if (className) conditions.push(eq(studentsTable.className, className));
-  if (search) conditions.push(ilike(studentsTable.studentName, `%${search}%`));
+  
+  // If the user is a student, restrict to their own records.
+  if (user.role === "student") {
+    // Need to find the student ID from referenceId
+    const [currentUser] = await db.select({ referenceId: usersTable.referenceId })
+                                  .from(usersTable)
+                                  .where(eq(usersTable.id, user.userId));
+    if (!currentUser?.referenceId) {
+       return NextResponse.json([]);
+    }
+    conditions.push(eq(studentsTable.id, parseInt(currentUser.referenceId, 10)));
+  } else {
+    if (className) conditions.push(eq(studentsTable.className, className));
+    if (search) conditions.push(ilike(studentsTable.studentName, `%${search}%`));
+  }
 
   const students = conditions.length
     ? await db.select().from(studentsTable).where(and(...conditions))
@@ -30,13 +46,42 @@ export async function POST(request: Request) {
   if (!user || !isPrivilegedRole(user.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
-    const data = await request.json();
-    const [student] = await db.insert(studentsTable).values({
-      ...data,
-      password: undefined,
-    }).returning();
+    const rawData = await request.json();
+    const { password, ...studentData } = rawData;
 
-    return NextResponse.json(student, { status: 201 });
+    if (studentData.username && !password) {
+      return NextResponse.json({ error: "Password is required when a username is provided to create a login." }, { status: 400 });
+    }
+    
+    // Server-side validation
+    const parsedData = insertStudentSchema.parse(studentData);
+
+    const result = await db.transaction(async (tx) => {
+      let userId = null;
+      
+      if (parsedData.username && password) {
+        const [newUser] = await tx.insert(usersTable).values({
+          username: parsedData.username,
+          passwordHash: await hashPassword(password),
+          role: "student",
+          name: parsedData.studentName,
+        }).returning({ id: usersTable.id });
+        userId = newUser.id;
+      }
+
+      const [student] = await tx.insert(studentsTable).values({
+        ...parsedData,
+        userId: userId,
+      }).returning();
+      
+      if (userId) {
+        await tx.update(usersTable).set({ referenceId: student.id.toString() }).where(eq(usersTable.id, userId));
+      }
+      
+      return student;
+    });
+
+    return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }

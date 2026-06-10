@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { admissionsTable } from "@/lib/db/schema";
 import { desc, eq, inArray } from "drizzle-orm";
 import { getSession, isPrivilegedRole } from "@/lib/auth";
+import { isAdmissionOpen } from "@/lib/settings";
 
 export async function GET(request: Request) {
   const user = await getSession();
@@ -23,6 +24,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!(await isAdmissionOpen())) {
+    return NextResponse.json({ error: "Admissions are currently closed" }, { status: 403 });
+  }
+  
   try {
     const data = await request.json();
     const [admission] = await db.insert(admissionsTable).values({

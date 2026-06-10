@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { staffTable } from "@/lib/db/schema";
+import { staffTable, insertStaffSchema } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSession, isPrivilegedRole } from "@/lib/auth";
 
@@ -15,7 +15,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!user || !isPrivilegedRole(user.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
-    const data = await request.json();
+    const rawData = await request.json();
+    const data = insertStaffSchema.partial().parse(rawData);
+    
+    if (data.isHeadmaster && user.role !== "principal" && user.role !== "admin") {
+      return NextResponse.json({ error: "Only the Principal or Admin can create or update a Headmaster" }, { status: 403 });
+    }
+
     const [staff] = await db
       .update(staffTable)
       .set(data)

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,14 +12,32 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Contact() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent",
-      description: "Thank you for contacting us. We will get back to you soon.",
-    });
-    (e.target as HTMLFormElement).reset();
+    setIsSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+    try {
+      const res = await fetch("https://formsubmit.co/ajax/ssnmathurapur@gmail.com", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Failed to submit");
+      toast({
+        title: "Message Sent",
+        description: "Thank you for contacting us. We will get back to you soon.",
+      });
+      (e.target as HTMLFormElement).reset();
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -122,7 +141,7 @@ export default function Contact() {
                 <h3 className="text-2xl font-serif font-bold text-primary">Send us a Message</h3>
               </div>
               <CardContent className="p-8">
-                <form action="https://formsubmit.co/ssnmathurapur@gmail.com" method="POST" className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-semibold">Your Name</label>
                     <Input id="name" name="name" required placeholder="John Doe" className="bg-muted/50" />
@@ -140,8 +159,8 @@ export default function Contact() {
                     <Textarea id="message" name="message" required placeholder="How can we help you?" className="min-h-[150px] bg-muted/50" />
                   </div>
                   <input type="hidden" name="_captcha" value="false" />
-                  <Button type="submit" variant="default" className="w-full font-bold text-lg h-12">
-                    Send Message
+                  <Button type="submit" variant="default" disabled={isSubmitting} className="w-full font-bold text-lg h-12 shadow-[0_8px_30px_rgb(232,117,10,0.3)] hover:shadow-[0_8px_30px_rgb(232,117,10,0.5)] transition-all active:scale-95">
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </CardContent>

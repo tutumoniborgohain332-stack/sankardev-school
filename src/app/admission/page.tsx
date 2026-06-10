@@ -46,8 +46,8 @@ const formSchema = z.object({
   siblingSection: z.string().optional(),
   specialCategory: z.string().optional(),
   apaarId: z.string().optional(),
-  fatherPhone: z.string().optional(),
-  motherPhone: z.string().optional(),
+  fatherPhone: z.string().optional().refine(val => !val || /^[0-9]{10}$/.test(val), "Must be exactly 10 digits"),
+  motherPhone: z.string().optional().refine(val => !val || /^[0-9]{10}$/.test(val), "Must be exactly 10 digits"),
   place: z.string().min(2, "Place is required"),
   date: z.string().min(10, "Date is required"),
 });
@@ -61,10 +61,41 @@ export default function Admission() {
     // @ts-ignore
     resolver: zodResolver(formSchema),
     defaultValues: {
+      serialNumber: "",
+      classRollNumber: "",
       studentNamePrefix: "Sri",
+      studentName: "",
       fatherNamePrefix: "Sri",
+      fatherName: "",
+      motherName: "",
+      permanentVillage: "",
+      permanentPo: "",
+      permanentPin: "",
+      presentVillage: "",
+      presentPo: "",
+      presentPin: "",
+      guardianName: "",
+      guardianRelation: "",
+      dateOfBirth: "",
+      age: "",
+      caste: "",
+      religion: "",
+      bloodGroup: "",
       nationality: "Indian",
+      previousSchoolName: "",
+      previousSchoolAddress: "",
+      previousClass: "",
       reasonForLeaving: "transfer",
+      appliedForClass: "",
+      siblingName: "",
+      siblingClass: "",
+      siblingSection: "",
+      specialCategory: "",
+      apaarId: "",
+      fatherPhone: "",
+      motherPhone: "",
+      place: "",
+      date: "",
     },
   });
 
@@ -188,7 +219,7 @@ export default function Admission() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Prefix</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Prefix" />
@@ -222,25 +253,40 @@ export default function Admission() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="fatherName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Father's Name (পিতৃৰ নাম)</FormLabel>
-                            <div className="flex gap-2">
-                              <Select defaultValue="Sri">
-                                <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
-                                <SelectContent><SelectItem value="Sri">Sri</SelectItem></SelectContent>
+                      <div className="flex gap-4">
+                        <FormField
+                          control={form.control}
+                          name="fatherNamePrefix"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Prefix</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Sri">Sri</SelectItem>
+                                  <SelectItem value="Late">Late</SelectItem>
+                                  <SelectItem value="Dr">Dr.</SelectItem>
+                                </SelectContent>
                               </Select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="fatherName"
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormLabel>Father's Name (পিতৃৰ নাম)</FormLabel>
                               <FormControl>
-                                <Input placeholder="Father's name" {...field} className="flex-1" />
+                                <Input placeholder="Father's name" {...field} />
                               </FormControl>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <FormField
                         control={form.control}
                         name="motherName"
@@ -312,7 +358,17 @@ export default function Admission() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField control={form.control} name="bloodGroup" render={({field}) => (
-                        <FormItem><FormLabel>Blood Group (তেজৰ গ্ৰুপ)</FormLabel><FormControl><Input placeholder="(from previous report card)" {...field} /></FormControl><FormMessage/></FormItem>
+                        <FormItem><FormLabel>Blood Group (তেজৰ গ্ৰুপ)</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Select Blood Group" /></SelectTrigger></FormControl>
+                            <SelectContent>
+                              {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"].map(bg => (
+                                <SelectItem key={bg} value={bg}>{bg}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage/>
+                        </FormItem>
                       )} />
                       <FormField control={form.control} name="nationality" render={({field}) => (
                         <FormItem><FormLabel>Nationality (নাগৰিকত্ব)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>

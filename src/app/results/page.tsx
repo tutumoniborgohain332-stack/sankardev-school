@@ -36,7 +36,7 @@ export default function Results() {
   const [submitted, setSubmitted] = useState(false);
   const [query, setQuery] = useState<typeof searchParams | null>(null);
 
-  const { data: results, isLoading, isFetching } = useListResults(
+  const { data: results, isLoading, isFetching, error } = useListResults(
     query
       ? {
           rollNumber: query.rollNumber || undefined,
@@ -95,6 +95,7 @@ export default function Results() {
                       onChange={(e) => setSearchParams(p => ({ ...p, rollNumber: e.target.value }))}
                       className="text-lg h-11"
                       data-testid="input-roll"
+                      required
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -146,7 +147,7 @@ export default function Results() {
                   <div className="md:col-span-2">
                     <Button
                       type="submit"
-                      className="w-full h-11 text-base font-bold"
+                      className="w-full h-11 text-base font-bold shadow-[0_8px_30px_rgb(232,117,10,0.3)] hover:shadow-[0_8px_30px_rgb(232,117,10,0.5)] transition-all active:scale-95"
                       disabled={isLoading || isFetching}
                       data-testid="button-search"
                     >
@@ -160,14 +161,35 @@ export default function Results() {
 
           {/* Results */}
           <AnimatePresence mode="wait">
-            {submitted && !isLoading && !isFetching && (
+            {(isLoading || isFetching) ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex justify-center items-center py-24"
+              >
+                <div className="flex flex-col items-center gap-4 text-primary">
+                  <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                  <p className="font-semibold animate-pulse">Searching Records...</p>
+                </div>
+              </motion.div>
+            ) : submitted && (
               <motion.div
                 key="results"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
               >
-                {(!results || results.length === 0) ? (
+                {error ? (
+                  <Card className="border-border shadow-md">
+                    <CardContent className="p-12 text-center">
+                      <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+                      <h3 className="text-xl font-bold mb-2">Error Fetching Results</h3>
+                      <p className="text-muted-foreground">There was a problem retrieving the result. Please try again later.</p>
+                    </CardContent>
+                  </Card>
+                ) : (!results || results.length === 0) ? (
                   <Card className="border-border shadow-md">
                     <CardContent className="p-12 text-center">
                       <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
