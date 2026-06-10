@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { attendanceTable, studentsTable } from "@/lib/db/schema";
@@ -49,3 +50,4 @@ export async function GET(request: Request) {
 
   return NextResponse.json(result);
 }
+

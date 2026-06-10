@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 const fetcher = async (url: string, options?: RequestInit) => {
   const res = await fetch(url, options);
   if (!res.ok) throw new Error(await res.text());
+  if (res.status === 204) return null;
   return res.json();
 };
 
@@ -161,6 +162,13 @@ export function useDeleteGalleryItem() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["gallery"] }),
   });
 }
+export function useUpdateGalleryItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => fetcher(`/api/gallery/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gallery"] }),
+  });
+}
 
 // Results
 export function getListResultsQueryKey(params: any = {}) {
@@ -237,5 +245,32 @@ export function useUpdateAdmissionSettings() {
   return useMutation({
     mutationFn: (open: boolean) => fetcher('/api/settings/admission', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ open }) }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['settings'] }),
+  });
+}
+
+// ==========================================
+// Complaints Queries & Mutations
+// ==========================================
+
+export function useListComplaints() {
+  return useQuery({
+    queryKey: ["complaints"],
+    queryFn: () => fetcher("/api/complaints"),
+  });
+}
+
+export function useCreateComplaint() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: any) => fetcher("/api/complaints", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["complaints"] }),
+  });
+}
+
+export function useDeleteComplaint() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => fetcher(`/api/complaints/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["complaints"] }),
   });
 }

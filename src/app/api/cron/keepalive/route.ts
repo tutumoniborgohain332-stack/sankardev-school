@@ -17,9 +17,12 @@ export async function GET(req: Request) {
     // This tells Supabase the project is active and prevents auto-pausing
     await db.execute(sql`SELECT 1`);
     
+    // Auto-delete complaints older than 7 days
+    await db.execute(sql`DELETE FROM complaints WHERE created_at < NOW() - INTERVAL '7 days'`);
+    
     return NextResponse.json({ 
       success: true, 
-      message: "Keepalive Ping Successful! Supabase DB will stay active." 
+      message: "Keepalive Ping Successful! Cleaned up old complaints." 
     });
   } catch (error) {
     console.error("Keepalive DB ping failed:", error);

@@ -7,4 +7,5 @@ export * from "./admissions";
 export * from "./results";
 export * from "./attendance";
 export * from "./settings";
+export * from "./complaints";
 

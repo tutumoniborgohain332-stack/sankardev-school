@@ -4,7 +4,7 @@ import { useGetMe, useLogout } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, UserSquare2, Image as ImageIcon, FileText, UserPlus, LogOut, Loader2, Award, CalendarCheck, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, UserSquare2, Image as ImageIcon, FileText, UserPlus, LogOut, Loader2, Award, CalendarCheck, Menu, X, ShieldAlert } from "lucide-react";
 import { PWAInstallButton } from "@/components/pwa-install-button";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -52,6 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "Admissions", href: "/admin/admissions", icon: UserPlus },
     { label: "Attendance", href: "/admin/attendance", icon: CalendarCheck },
     { label: "Results", href: "/admin/results", icon: Award },
+    { label: "Complaints", href: "/admin/complaints", icon: ShieldAlert },
   ];
 
   return (

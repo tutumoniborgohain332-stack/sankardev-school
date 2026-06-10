@@ -3,39 +3,59 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useListGallery } from "@/lib/api-client";
 import Link from "next/link";
 
-const HERO_IMAGES = [
-  "/images/hero-1.png",
-  "/images/hero-2.png",
-  "/images/hero-3.png",
-  "/images/hero-4.png",
-];
-
 export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
+  const { data: galleryItems, isLoading } = useListGallery();
+  const heroItems = galleryItems?.filter((item: any) => item.isHero) || [];
+  
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
+    if (heroItems.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+      setCurrentImageIndex((prev) => (prev + 1) % heroItems.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [heroItems.length]);
+
+  const hasImages = heroItems.length > 0;
 
   return (
     <section className="relative h-[80vh] min-h-[500px] max-h-[800px] w-full overflow-hidden bg-black">
-      <AnimatePresence>
-        <motion.img
-          key={currentImageIndex}
-          src={HERO_IMAGES[currentImageIndex]}
-          alt={`School Campus ${currentImageIndex + 1}`}
-          className="absolute inset-0 w-full h-full object-cover"
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1, zIndex: 1 }}
-          exit={{ opacity: 0.99, zIndex: 0 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
-        />
-      </AnimatePresence>
+      {hasImages ? (
+        <AnimatePresence>
+          {heroItems[currentImageIndex]?.type === "video" ? (
+            <motion.video
+              key={currentImageIndex}
+              src={heroItems[currentImageIndex].url}
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1, zIndex: 1 }}
+              exit={{ opacity: 0.99, zIndex: 0 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+            />
+          ) : (
+            <motion.img
+              key={currentImageIndex}
+              src={heroItems[currentImageIndex]?.url}
+              alt={`School Campus ${currentImageIndex + 1}`}
+              className="absolute inset-0 w-full h-full object-cover"
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1, zIndex: 1 }}
+              exit={{ opacity: 0.99, zIndex: 0 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+            />
+          )}
+        </AnimatePresence>
+      ) : (
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-950 via-zinc-950 to-black pattern-grid-lg opacity-90" />
+      )}
       
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 

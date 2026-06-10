@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { studentsTable } from "@/lib/db/schema";
@@ -14,3 +15,4 @@ export async function GET() {
 
   return NextResponse.json(rows.map(r => ({ className: r.className, count: r.count })));
 }
+

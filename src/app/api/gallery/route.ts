@@ -4,6 +4,8 @@ import { galleryTable } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 import { getSession, isPrivilegedRole } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const gallery = await db.select().from(galleryTable).orderBy(desc(galleryTable.uploadedAt));
@@ -18,6 +20,7 @@ export async function GET() {
         url: "https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=800&q=80",
         category: "Sports",
         description: "Students participating in the annual sports day event.",
+        isHero: true,
         uploadedAt: new Date().toISOString(),
       },
       {
@@ -27,6 +30,7 @@ export async function GET() {
         url: "https://images.unsplash.com/photo-1564419320461-6870880221ad?w=800&q=80",
         category: "Events",
         description: "A brilliant science project showcased by our students.",
+        isHero: false,
         uploadedAt: new Date().toISOString(),
       }
     ]);
@@ -39,10 +43,7 @@ export async function POST(request: Request) {
 
   try {
     const data = await request.json();
-    const [galleryItem] = await db.insert(galleryTable).values({
-      ...data,
-      uploadedBy: String(user.userId),
-    }).returning();
+    const [galleryItem] = await db.insert(galleryTable).values(data).returning();
 
     return NextResponse.json(galleryItem, { status: 201 });
   } catch (error: any) {

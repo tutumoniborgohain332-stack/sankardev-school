@@ -7,6 +7,7 @@ import {
   getListGalleryQueryKey,
   useCreateGalleryItem,
   useDeleteGalleryItem,
+  useUpdateGalleryItem,
 } from "@/lib/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { Plus, Trash2, Image as ImageIcon, Video } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
@@ -41,6 +43,11 @@ export default function GalleryAdmin() {
   const { data: items, isLoading } = useListGallery();
   const createItem = useCreateGalleryItem();
   const deleteItem = useDeleteGalleryItem();
+  const updateItem = useUpdateGalleryItem();
+
+  const toggleHero = (item: any) => {
+    updateItem.mutate({ id: item.id, data: { isHero: !item.isHero } });
+  };
 
   const categories = ["All", "Events", "Sports", "Academic", "Infrastructure", "Others"];
   const [activeCategory, setActiveCategory] = useState("All");
@@ -244,12 +251,24 @@ export default function GalleryAdmin() {
               </div>
               <div className="p-3">
                 <p className="font-medium text-sm truncate">{item.title}</p>
-                <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center justify-between mt-2">
                   <Badge variant="secondary" className="text-xs flex items-center gap-1">
                     {item.type === "photo" ? <ImageIcon className="w-3 h-3" /> : <Video className="w-3 h-3" />}
                     {item.category ?? item.type}
                   </Badge>
-                  <AlertDialog>
+                  <div className="flex items-center gap-2">
+                    {item.type === "photo" && (
+                      <div className="flex items-center" title="Show on Homepage Slider">
+                        <Label className="text-[10px] uppercase mr-1.5 text-muted-foreground font-bold tracking-wider">Hero</Label>
+                        <Switch 
+                          checked={item.isHero} 
+                          onCheckedChange={() => toggleHero(item)}
+                          disabled={updateItem.isPending}
+                          className="scale-75 origin-right"
+                        />
+                      </div>
+                    )}
+                    <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" data-testid={`button-delete-gallery-${item.id}`}>
                         <Trash2 className="w-3 h-3" />
@@ -266,6 +285,7 @@ export default function GalleryAdmin() {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                  </div>
                 </div>
               </div>
             </motion.div>
