@@ -24,15 +24,15 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
 
   return (
     <section className="relative h-[80vh] min-h-[500px] max-h-[800px] w-full overflow-hidden bg-black">
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence>
         <motion.img
           key={currentImageIndex}
           src={HERO_IMAGES[currentImageIndex]}
           alt={`School Campus ${currentImageIndex + 1}`}
           className="absolute inset-0 w-full h-full object-cover"
           initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
+          animate={{ opacity: 1, scale: 1, zIndex: 1 }}
+          exit={{ opacity: 0.99, zIndex: 0 }}
           transition={{ duration: 1.5, ease: "easeInOut" }}
         />
       </AnimatePresence>
