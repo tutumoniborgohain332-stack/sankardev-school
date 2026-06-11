@@ -15,8 +15,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
-  username: z.string().min(3, "Username is required"),
-  password: z.string().min(6, "Password is required"),
+  username: z.string().min(3, "Username is required").max(100, "Username is too long"),
+  password: z.string().min(6, "Password is required").max(100, "Password is too long"),
 });
 
 export default function LoginStudent() {
