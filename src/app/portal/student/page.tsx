@@ -181,60 +181,6 @@ export default function PortalStudent() {
                 </Card>
               </div>
 
-              {/* Dashboard Widgets Row 2 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Upcoming Assignments */}
-                <Card className="shadow-md border-t-4 border-t-blue-500">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-blue-500" /> Upcoming Assignments
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      <li className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                        <div>
-                          <p className="font-semibold text-sm">Mathematics Homework</p>
-                          <p className="text-xs text-muted-foreground">Algebra Chapter 4</p>
-                        </div>
-                        <span className="text-xs bg-red-500/10 text-red-500 px-2 py-1 rounded-md font-medium">Due Tomorrow</span>
-                      </li>
-                      <li className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                        <div>
-                          <p className="font-semibold text-sm">Science Project</p>
-                          <p className="text-xs text-muted-foreground">Solar System Model</p>
-                        </div>
-                        <span className="text-xs bg-amber-500/10 text-amber-500 px-2 py-1 rounded-md font-medium">Due in 3 Days</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* Today's Schedule */}
-                <Card className="shadow-md border-t-4 border-t-purple-500">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-purple-500" /> Today's Schedule
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="relative pl-4 border-l-2 border-primary">
-                        <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1"></div>
-                        <p className="text-xs text-muted-foreground font-semibold">09:00 AM - 09:45 AM</p>
-                        <p className="font-bold text-sm">English Literature</p>
-                        <p className="text-xs text-muted-foreground">Room 102</p>
-                      </div>
-                      <div className="relative pl-4 border-l-2 border-muted">
-                        <div className="absolute w-3 h-3 bg-muted rounded-full -left-[7px] top-1"></div>
-                        <p className="text-xs text-muted-foreground font-semibold">09:45 AM - 10:30 AM</p>
-                        <p className="font-bold text-sm">Mathematics</p>
-                        <p className="text-xs text-muted-foreground">Room 102</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
 
               {/* Notice Board */}
               <Card className="shadow-md border-t-4 border-t-accent">
