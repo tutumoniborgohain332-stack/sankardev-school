@@ -203,8 +203,13 @@ export function useDeleteResult() {
 // Attendance
 export function getGetAttendanceQueryKey(params: any) { return ["attendance", params]; }
 export function useGetAttendance(params: any, options?: any) {
-  const q = new URLSearchParams(params).toString();
+  const q = new URLSearchParams(params as any).toString();
   return useQuery<any[]>({ queryKey: getGetAttendanceQueryKey(params), queryFn: () => fetcher(`/api/attendance?${q}`), ...options?.query });
+}
+
+export function getGetMyAttendanceQueryKey() { return ["my-attendance"]; }
+export function useGetMyAttendance(options?: any) {
+  return useQuery<any[]>({ queryKey: getGetMyAttendanceQueryKey(), queryFn: () => fetcher(`/api/attendance/student`), ...options?.query });
 }
 export function useMarkAttendanceBulk() {
   const qc = useQueryClient();
