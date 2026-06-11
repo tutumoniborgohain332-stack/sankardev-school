@@ -11,6 +11,7 @@ export const attendanceTable = pgTable("attendance", {
   markedBy: text("marked_by"),
   remarks: text("remarks"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => {
   return {
     studentIdx: index("attendance_student_id_idx").on(table.studentId),
     dateIdx: index("attendance_date_idx").on(table.date),
