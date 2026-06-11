@@ -46,10 +46,16 @@ export default function LoginStudent() {
         });
         router.push("/portal/student");
       },
-      onError: () => {
+      onError: (error: any) => {
+        let errorMsg = "Invalid credentials. Please try again.";
+        try {
+          const parsed = JSON.parse(error.message);
+          if (parsed.error) errorMsg = parsed.error;
+        } catch(e) {}
+
         toast({
           title: "Login Failed",
-          description: "Invalid credentials. Please try again.",
+          description: errorMsg,
           variant: "destructive",
         });
       }

@@ -96,9 +96,9 @@ export function useDeleteStaff() {
 
 // News
 export function getListNewsQueryKey(params?: any) { return ["news", params]; }
-export function useListNews(params?: any) {
+export function useListNews(params?: any, options?: any) {
   const query = params ? "?" + new URLSearchParams(params).toString() : "";
-  return useQuery<any[]>({ queryKey: getListNewsQueryKey(params), queryFn: () => fetcher(`/api/news${query}`) });
+  return useQuery<any[]>({ queryKey: getListNewsQueryKey(params), queryFn: () => fetcher(`/api/news${query}`), ...options?.query });
 }
 export function useCreateNews() {
   const qc = useQueryClient();

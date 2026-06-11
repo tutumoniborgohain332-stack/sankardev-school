@@ -14,8 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function PortalStudent() {
   const router = useRouter();
   const { data: user, isLoading: isAuthLoading } = useGetMe({ query: { queryKey: getGetMeQueryKey() } });
-  const { data: students, isLoading: isStudentsLoading } = useListStudents({});
-  const { data: news, isLoading: isNewsLoading } = useListNews();
+  const { data: students, isLoading: isStudentsLoading, isError: isStudentsError } = useListStudents({}, { query: { enabled: !!user && user.role === "student" } });
+  const { data: news, isLoading: isNewsLoading, isError: isNewsError } = useListNews({}, { query: { enabled: !!user && user.role === "student" } });
   const logout = useLogout();
 
   useEffect(() => {
@@ -61,8 +61,8 @@ export default function PortalStudent() {
             </div>
             <div className="flex items-center gap-4">
             <PWAInstallButton />
-            <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2 border-primary text-primary hover:bg-primary/10">
-              <LogOut className="w-4 h-4" /> Logout
+            <Button disabled={logout.isPending} variant="outline" onClick={handleLogout} className="flex items-center gap-2 border-primary text-primary hover:bg-primary/10">
+              <LogOut className="w-4 h-4" /> {logout.isPending ? "Logging out..." : "Logout"}
             </Button>
           </div>
           </div>
@@ -90,6 +90,8 @@ export default function PortalStudent() {
                       <Skeleton className="h-8 w-full" />
                       <Skeleton className="h-8 w-full" />
                     </div>
+                  ) : isStudentsError ? (
+                    <p className="text-destructive font-medium bg-destructive/10 p-3 rounded-lg text-sm">Failed to load student details. Please try again later.</p>
                   ) : studentData ? (
                     <div className="space-y-3 text-sm text-left">
                       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
@@ -248,6 +250,8 @@ export default function PortalStudent() {
                         <Skeleton className="h-24 w-full rounded-lg" />
                         <Skeleton className="h-24 w-full rounded-lg" />
                       </div>
+                    ) : isNewsError ? (
+                      <p className="text-destructive font-medium text-sm">Failed to load notices. Please refresh.</p>
                     ) : recentNews.length > 0 ? recentNews.map((item: any) => {
                       const date = new Date(item.publishedAt);
                       return (
