@@ -53,7 +53,12 @@ export default function PortalStudent() {
       <div className="bg-primary/5 min-h-[80vh] py-12">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <h1 className="text-3xl font-serif font-bold text-foreground">Student Dashboard</h1>
+            <div>
+              <h1 className="text-3xl font-serif font-bold text-foreground">
+                Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, {user.name.split(' ')[0]}! 👋
+              </h1>
+              <p className="text-muted-foreground mt-1">Here is your academic overview for today.</p>
+            </div>
             <div className="flex items-center gap-4">
             <PWAInstallButton />
             <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2 border-primary text-primary hover:bg-primary/10">
@@ -127,30 +132,104 @@ export default function PortalStudent() {
 
             {/* Main Content Area */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Quick Actions */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <Card className="hover:border-primary/50 hover:shadow-md transition-all opacity-50 cursor-not-allowed" title="Coming Soon">
-                  <CardContent className="p-6 text-center">
-                    <FileText className="w-8 h-8 mx-auto text-primary mb-3" />
-                    <h3 className="font-semibold text-sm">Report Cards</h3>
+              {/* Dashboard Widgets Row 1 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Attendance Tracker */}
+                <Card className="shadow-md border-t-4 border-t-emerald-500 hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <User className="w-5 h-5 text-emerald-500" /> Attendance Overview
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex items-center justify-between">
+                    <div>
+                      <p className="text-3xl font-bold text-emerald-600">92%</p>
+                      <p className="text-sm text-muted-foreground mt-1">Present: 184 Days</p>
+                      <p className="text-sm text-muted-foreground">Absent: 16 Days</p>
+                    </div>
+                    <div className="relative w-24 h-24">
+                      <svg viewBox="0 0 36 36" className="w-full h-full stroke-current text-emerald-500">
+                        <path className="text-muted/30" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path strokeWidth="3" strokeDasharray="92, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center font-bold text-sm">92%</div>
+                    </div>
                   </CardContent>
                 </Card>
-                <Card className="hover:border-primary/50 hover:shadow-md transition-all opacity-50 cursor-not-allowed" title="Coming Soon">
-                  <CardContent className="p-6 text-center">
-                    <Calendar className="w-8 h-8 mx-auto text-accent mb-3" />
-                    <h3 className="font-semibold text-sm">Timetable</h3>
+
+                {/* Fee Status */}
+                <Card className="shadow-md border-t-4 border-t-amber-500 hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-amber-500" /> Fee Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center bg-amber-500/10 p-4 rounded-lg border border-amber-500/20">
+                      <div>
+                        <p className="font-bold text-amber-700 dark:text-amber-500">Pending Dues</p>
+                        <p className="text-2xl font-bold mt-1">₹0.00</p>
+                      </div>
+                      <div className="bg-emerald-500/20 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                        All Clear
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-3">Next installment due: Nov 15</p>
                   </CardContent>
                 </Card>
-                <Card className="hover:border-primary/50 hover:shadow-md transition-all opacity-50 cursor-not-allowed" title="Coming Soon">
-                  <CardContent className="p-6 text-center">
-                    <BookOpen className="w-8 h-8 mx-auto text-secondary mb-3" />
-                    <h3 className="font-semibold text-sm">Library</h3>
+              </div>
+
+              {/* Dashboard Widgets Row 2 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Upcoming Assignments */}
+                <Card className="shadow-md border-t-4 border-t-blue-500">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-blue-500" /> Upcoming Assignments
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-3">
+                      <li className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                        <div>
+                          <p className="font-semibold text-sm">Mathematics Homework</p>
+                          <p className="text-xs text-muted-foreground">Algebra Chapter 4</p>
+                        </div>
+                        <span className="text-xs bg-red-500/10 text-red-500 px-2 py-1 rounded-md font-medium">Due Tomorrow</span>
+                      </li>
+                      <li className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                        <div>
+                          <p className="font-semibold text-sm">Science Project</p>
+                          <p className="text-xs text-muted-foreground">Solar System Model</p>
+                        </div>
+                        <span className="text-xs bg-amber-500/10 text-amber-500 px-2 py-1 rounded-md font-medium">Due in 3 Days</span>
+                      </li>
+                    </ul>
                   </CardContent>
                 </Card>
-                <Card className="hover:border-primary/50 hover:shadow-md transition-all opacity-50 cursor-not-allowed" title="Coming Soon">
-                  <CardContent className="p-6 text-center">
-                    <Award className="w-8 h-8 mx-auto text-primary mb-3" />
-                    <h3 className="font-semibold text-sm">Certificates</h3>
+
+                {/* Today's Schedule */}
+                <Card className="shadow-md border-t-4 border-t-purple-500">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-purple-500" /> Today's Schedule
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="relative pl-4 border-l-2 border-primary">
+                        <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1"></div>
+                        <p className="text-xs text-muted-foreground font-semibold">09:00 AM - 09:45 AM</p>
+                        <p className="font-bold text-sm">English Literature</p>
+                        <p className="text-xs text-muted-foreground">Room 102</p>
+                      </div>
+                      <div className="relative pl-4 border-l-2 border-muted">
+                        <div className="absolute w-3 h-3 bg-muted rounded-full -left-[7px] top-1"></div>
+                        <p className="text-xs text-muted-foreground font-semibold">09:45 AM - 10:30 AM</p>
+                        <p className="font-bold text-sm">Mathematics</p>
+                        <p className="text-xs text-muted-foreground">Room 102</p>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
