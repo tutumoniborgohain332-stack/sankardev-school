@@ -44,6 +44,7 @@ export default function StaffAdmin() {
   const [isOpen, setIsOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const { data: staff, isLoading } = useListStaff();
   const createStaff = useCreateStaff();
@@ -92,6 +93,14 @@ export default function StaffAdmin() {
     setPhotoPreview(null);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      form.reset();
+      setPhotoPreview(null);
+    }
+  };
+
   const onSubmit = (data: StaffForm) => {
     createStaff.mutate(
       { data: { name: data.name, designation: data.designation, joinDate: data.joinDate, qualification: data.qualification, subject: data.subject, phone: data.phone, email: data.email, isHeadmaster: data.isHeadmaster, username: data.username || undefined, password: data.password || undefined, photoUrl: data.photoUrl || undefined } as any },
@@ -107,8 +116,13 @@ export default function StaffAdmin() {
   };
 
   const handleDelete = (id: number) => {
+    setDeletingId(id);
     deleteStaff.mutate(id, {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
+        setDeletingId(null);
+      },
+      onError: () => setDeletingId(null),
     });
   };
 
@@ -119,7 +133,7 @@ export default function StaffAdmin() {
           <h1 className="text-2xl font-bold text-foreground">Staff Management</h1>
           <p className="text-muted-foreground text-sm mt-1">{staff?.length ?? 0} staff members</p>
         </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <Button data-testid="button-add-staff" className="flex items-center gap-2">
               <Plus className="w-4 h-4" /> Add Staff
@@ -315,7 +329,13 @@ export default function StaffAdmin() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(member.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                          <AlertDialogAction 
+                            disabled={deletingId === member.id}
+                            onClick={(e) => { e.preventDefault(); handleDelete(member.id); }} 
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            {deletingId === member.id ? "Deleting..." : "Delete"}
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>

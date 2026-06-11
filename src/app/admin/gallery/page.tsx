@@ -39,6 +39,7 @@ type GalleryForm = z.infer<typeof gallerySchema>;
 export default function GalleryAdmin() {
   const [isOpen, setIsOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const { data: items, isLoading } = useListGallery();
   const createItem = useCreateGalleryItem();
@@ -104,16 +105,37 @@ export default function GalleryAdmin() {
     form.setValue("url", "");
   };
 
-  const handleDelete = async (item: any) => {
-    // Delete from Supabase bucket first if it's a supabase URL
-    if (item.url.includes("supabase.co")) {
-      await deleteImageFromSupabase(item.url, "assets");
+  const handleOpenChange = async (open: boolean) => {
+    if (!open) {
+      // If closing dialog, check if there's an orphaned upload that hasn't been saved
+      const url = form.getValues("url");
+      if (url && url.includes("supabase.co")) {
+        await deleteImageFromSupabase(url, "assets");
+      }
+      form.reset();
     }
-    
-    // Delete from database
-    deleteItem.mutate(item.id, {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() }),
-    });
+    setIsOpen(open);
+  };
+
+  const handleDelete = async (item: any) => {
+    setDeletingId(item.id);
+    try {
+      // Delete from Supabase bucket first if it's a supabase URL
+      if (item.url.includes("supabase.co")) {
+        await deleteImageFromSupabase(item.url, "assets");
+      }
+      
+      // Delete from database
+      deleteItem.mutate(item.id, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() });
+          setDeletingId(null);
+        },
+        onError: () => setDeletingId(null),
+      });
+    } catch (err) {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -123,7 +145,7 @@ export default function GalleryAdmin() {
           <h1 className="text-2xl font-bold text-foreground">Gallery Management</h1>
           <p className="text-muted-foreground text-sm mt-1">{items?.length ?? 0} items</p>
         </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2" data-testid="button-add-gallery">
               <Plus className="w-4 h-4" /> Add Item
@@ -281,7 +303,13 @@ export default function GalleryAdmin() {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(item)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+                        <AlertDialogAction 
+                          disabled={deletingId === item.id}
+                          onClick={(e) => { e.preventDefault(); handleDelete(item); }} 
+                          className="bg-destructive text-destructive-foreground"
+                        >
+                          {deletingId === item.id ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>

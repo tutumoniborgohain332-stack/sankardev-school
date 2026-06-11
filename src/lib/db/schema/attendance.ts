@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, text, date, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, text, date, timestamp, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { studentsTable } from "./students";
 
 export const attendanceTable = pgTable("attendance", {
@@ -11,11 +11,11 @@ export const attendanceTable = pgTable("attendance", {
   markedBy: text("marked_by"),
   remarks: text("remarks"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (table) => {
   return {
     studentIdx: index("attendance_student_id_idx").on(table.studentId),
     dateIdx: index("attendance_date_idx").on(table.date),
     classIdx: index("attendance_class_idx").on(table.className),
+    uniqueStudentDate: uniqueIndex("attendance_student_date_unique").on(table.studentId, table.date),
   };
 });
 
