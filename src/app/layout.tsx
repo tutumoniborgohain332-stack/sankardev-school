@@ -21,14 +21,24 @@ export const metadata: Metadata = {
     default: "Sankardev Sishu Vidya Niketan, Mathurapur",
     template: "%s | SSVN Mathurapur"
   },
-  description: "Official website of Sankardev Sishu Vidya Niketan Mathurapur. Fostering excellence in education, culture, and discipline under Shishu Shiksha Samiti, Assam.",
-  keywords: ["SSVN Mathurapur", "Sankardev Sishu Vidya Niketan", "Mathurapur School", "Assam School", "Shishu Shiksha Samiti", "Best school in Mathurapur", "Education in Assam"],
+  description: "Official website of Sankardev Sishu Vidya Niketan Mathurapur. Fostering excellence in education, culture, and discipline under Shishu Shiksha Samiti, Assam. Recognized as a top educational institution serving Charaideo and Sivasagar districts.",
+  keywords: [
+    "SSVN Mathurapur", 
+    "Sankardev Sishu Vidya Niketan", 
+    "Mathurapur School", 
+    "Assam School", 
+    "Best school in Mathurapur",
+    "Best school in Charaideo district",
+    "Best high school in Sivasagar",
+    "Top school in Sivasagar",
+    "Best Assamese medium school in Charaideo",
+    "High school in Charaideo",
+    "Education in Assam",
+    "Shishu Shiksha Samiti"
+  ],
   authors: [{ name: "SSVN Mathurapur" }],
   creator: "SSVN Mathurapur",
   metadataBase: new URL(BASE_URL),
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -89,7 +99,21 @@ const jsonLd = {
     "latitude": 26.9602,
     "longitude": 94.8814
   },
-  "description": "Official website of Sankardev Sishu Vidya Niketan Mathurapur. Fostering excellence in education, culture, and discipline."
+  "areaServed": [
+    {
+      "@type": "City",
+      "name": "Mathurapur"
+    },
+    {
+      "@type": "City",
+      "name": "Charaideo"
+    },
+    {
+      "@type": "City",
+      "name": "Sivasagar"
+    }
+  ],
+  "description": "Top-rated educational institution in Mathurapur, serving students across Charaideo and Sivasagar districts with excellence in education, culture, and discipline."
 };
 
 export default function RootLayout({
