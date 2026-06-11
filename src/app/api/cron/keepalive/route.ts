@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   // Security Check: Ensure the request comes from Vercel Cron
   // You need to set CRON_SECRET in Vercel Environment Variables
   const authHeader = req.headers.get('authorization');
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response('Unauthorized - Invalid Cron Secret', { status: 401 });
   }
 

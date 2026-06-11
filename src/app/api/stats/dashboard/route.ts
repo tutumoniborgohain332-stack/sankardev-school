@@ -5,13 +5,23 @@ import { studentsTable, staffTable, admissionsTable, galleryTable, newsTable } f
 import { count, eq } from "drizzle-orm";
 
 export async function GET() {
-  const [studentCount] = await db.select({ count: count() }).from(studentsTable);
-  const [staffCount] = await db.select({ count: count() }).from(staffTable);
-  const [pendingAdm] = await db.select({ count: count() }).from(admissionsTable).where(eq(admissionsTable.status, "pending"));
-  const [approvedAdm] = await db.select({ count: count() }).from(admissionsTable).where(eq(admissionsTable.status, "approved"));
-  const [rejectedAdm] = await db.select({ count: count() }).from(admissionsTable).where(eq(admissionsTable.status, "rejected"));
-  const [galleryCount] = await db.select({ count: count() }).from(galleryTable);
-  const [newsCount] = await db.select({ count: count() }).from(newsTable);
+  const [
+    [studentCount],
+    [staffCount],
+    [pendingAdm],
+    [approvedAdm],
+    [rejectedAdm],
+    [galleryCount],
+    [newsCount],
+  ] = await Promise.all([
+    db.select({ count: count() }).from(studentsTable),
+    db.select({ count: count() }).from(staffTable),
+    db.select({ count: count() }).from(admissionsTable).where(eq(admissionsTable.status, "pending")),
+    db.select({ count: count() }).from(admissionsTable).where(eq(admissionsTable.status, "approved")),
+    db.select({ count: count() }).from(admissionsTable).where(eq(admissionsTable.status, "rejected")),
+    db.select({ count: count() }).from(galleryTable),
+    db.select({ count: count() }).from(newsTable),
+  ]);
 
   return NextResponse.json({
     totalStudents: studentCount?.count ?? 0,
@@ -25,4 +35,3 @@ export async function GET() {
     rejectedAdmissions: rejectedAdm?.count ?? 0,
   });
 }
-

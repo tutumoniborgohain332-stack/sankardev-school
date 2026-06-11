@@ -10,9 +10,14 @@ export async function GET(request: Request) {
   const key = searchParams.get("key");
 
   if (key) {
+    // Public: allow fetching specific settings by key (e.g. admissions_open)
     const [setting] = await db.select().from(settingsTable).where(eq(settingsTable.key, key)).limit(1);
     return NextResponse.json({ value: setting?.value || null });
   }
+
+  // Protected: only admins can dump all settings
+  const user = await getSession();
+  if (!user || !isPrivilegedRole(user.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const settings = await db.select().from(settingsTable);
   return NextResponse.json(settings);

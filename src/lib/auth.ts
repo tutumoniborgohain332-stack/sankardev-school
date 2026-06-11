@@ -105,8 +105,8 @@ export async function getSession(): Promise<{ userId: number; role: string } | n
   
   if (isNaN(userId)) return null;
 
-  // Optional: check expiry if we wanted
-  // if (Date.now() - parseInt(timestamp, 10) > 1000 * 60 * 60 * 24 * 7) return null;
+  // Enforce session TTL: reject tokens older than 7 days
+  if (Date.now() - parseInt(timestamp, 10) > 1000 * 60 * 60 * 24 * 7) return null;
 
   return { userId, role };
 }

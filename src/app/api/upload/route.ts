@@ -64,6 +64,11 @@ export async function DELETE(request: Request) {
     if (urlParts.length !== 2) return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     
     const filePath = urlParts[1];
+
+    // Prevent path traversal: only allow paths under the uploads/ directory
+    if (!filePath.startsWith("uploads/") || filePath.includes("..") || filePath.includes("%2e")) {
+      return NextResponse.json({ error: "Invalid file path" }, { status: 400 });
+    }
     
     const { error } = await supabase.storage
       .from(bucketName)

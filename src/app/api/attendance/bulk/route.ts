@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { attendanceTable, studentsTable } from "@/lib/db/schema";
 import { eq, and, inArray } from "drizzle-orm";
 import { getSession, isStaffRole } from "@/lib/auth";
+import { sql } from "drizzle-orm";
 
 export async function POST(request: Request) {
   const user = await getSession();
@@ -19,55 +20,36 @@ export async function POST(request: Request) {
        return NextResponse.json({ error: "Section is required for bulk attendance" }, { status: 400 });
     }
 
-    // Sort records by studentId to prevent transaction deadlocks
-    const sortedRecords = [...records].sort((a, b) => a.studentId - b.studentId);
-
-    // Verify that all students actually belong to the specified class and section
-    const studentIds = sortedRecords.map((r: any) => r.studentId);
+    const studentIds = records.map((r: any) => r.studentId);
     
-    const validStudentsQuery = db.select({ id: studentsTable.id })
-                               .from(studentsTable)
-                               .where(and(eq(studentsTable.className, className), eq(studentsTable.section, section), inArray(studentsTable.id, studentIds)));
-    
-    const validStudents = await validStudentsQuery;
+    // Verify all students belong to the specified class and section
+    const validStudents = await db.select({ id: studentsTable.id })
+      .from(studentsTable)
+      .where(and(eq(studentsTable.className, className), eq(studentsTable.section, section), inArray(studentsTable.id, studentIds)));
 
     if (validStudents.length !== studentIds.length) {
        return NextResponse.json({ error: "Some students do not belong to the specified class or section" }, { status: 400 });
     }
 
-    await db.transaction(async (tx) => {
-      for (const record of sortedRecords) {
-        const existing = await tx
-          .select()
-          .from(attendanceTable)
-          .where(
-            and(
-              eq(attendanceTable.studentId, record.studentId),
-              eq(attendanceTable.date, date)
-            )
-          )
-          .limit(1);
+    // Bulk upsert: single query replaces N+1 loop
+    const values = records.map((r: any) => ({
+      studentId: r.studentId,
+      date,
+      className,
+      section,
+      status: r.status,
+      markedBy: String(user.userId),
+    }));
 
-        if (existing.length > 0) {
-          await tx
-            .update(attendanceTable)
-            .set({
-              status: record.status,
-              markedBy: String(user.userId)
-            })
-            .where(eq(attendanceTable.id, existing[0].id));
-        } else {
-          await tx.insert(attendanceTable).values({
-            studentId: record.studentId,
-            date,
-            className,
-            section,
-            status: record.status,
-            markedBy: String(user.userId)
-          });
-        }
-      }
-    });
+    await db.insert(attendanceTable)
+      .values(values)
+      .onConflictDoUpdate({
+        target: [attendanceTable.studentId, attendanceTable.date],
+        set: {
+          status: sql`excluded.status`,
+          markedBy: sql`excluded.marked_by`,
+        },
+      });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

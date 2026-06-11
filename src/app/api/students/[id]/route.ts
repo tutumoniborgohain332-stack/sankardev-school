@@ -6,6 +6,9 @@ import { eq } from "drizzle-orm";
 import { getSession, isPrivilegedRole } from "@/lib/auth";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getSession();
+  if (!user || !isPrivilegedRole(user.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   const [student] = await db.select().from(studentsTable).where(eq(studentsTable.id, Number((await params).id))).limit(1);
   if (!student) return NextResponse.json({ error: "Student not found" }, { status: 404 });
   return NextResponse.json(student);
