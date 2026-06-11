@@ -61,14 +61,14 @@ export function Header() {
         <div className="flex items-center justify-between py-4">
           <div className="flex items-center gap-4">
             <Link href="/" className="shrink-0">
-              <img src="/logo-25.png" alt="Sankardev Sishu Vidya Niketan Mathurapure" className="h-14 md:h-16 w-auto shrink-0 object-contain" />
+              <img src="/logo-25.png" alt="Sankardev Sishu Vidya Niketan Mathurapur" className="h-14 md:h-16 w-auto shrink-0 object-contain" />
             </Link>
             <div>
               <h1 className="text-xl md:text-3xl font-bold font-serif text-white drop-shadow-sm">
                 শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
               </h1>
               <p className="text-sm md:text-base font-semibold tracking-wide">
-                Sankardev Sishu Vidya Niketan Mathurapure
+                Sankardev Sishu Vidya Niketan Mathurapur
               </p>
             </div>
           </div>

@@ -7,6 +7,7 @@ import {
   getListStaffQueryKey,
   useCreateStaff,
   useDeleteStaff,
+  useUpdateStaff,
 } from "@/lib/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -19,7 +20,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Star, Camera, X } from "lucide-react";
+import { Plus, Trash2, Star, Camera, X, Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,7 +49,9 @@ export default function StaffAdmin() {
   const queryClient = useQueryClient();
   const { data: staff, isLoading } = useListStaff();
   const createStaff = useCreateStaff();
+  const updateStaff = useUpdateStaff();
   const deleteStaff = useDeleteStaff();
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const form = useForm<StaffForm>({
     // @ts-ignore
@@ -98,21 +101,57 @@ export default function StaffAdmin() {
     if (!open) {
       form.reset();
       setPhotoPreview(null);
+      setEditingId(null);
     }
   };
 
   const onSubmit = (data: StaffForm) => {
-    createStaff.mutate(
-      { data: { name: data.name, designation: data.designation, joinDate: data.joinDate, qualification: data.qualification, subject: data.subject, phone: data.phone, email: data.email, isHeadmaster: data.isHeadmaster, username: data.username || undefined, password: data.password || undefined, photoUrl: data.photoUrl || undefined } as any },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
-          form.reset();
-          setPhotoPreview(null);
-          setIsOpen(false);
-        },
-      }
-    );
+    const payload = { ...data, username: data.username || undefined, password: data.password || undefined, photoUrl: data.photoUrl || undefined };
+    if (editingId) {
+      updateStaff.mutate(
+        { id: editingId, data: payload as any },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
+            form.reset();
+            setPhotoPreview(null);
+            setEditingId(null);
+            setIsOpen(false);
+          },
+        }
+      );
+    } else {
+      createStaff.mutate(
+        { data: payload as any },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
+            form.reset();
+            setPhotoPreview(null);
+            setIsOpen(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleEdit = (member: any) => {
+    form.reset({
+      name: member.name,
+      designation: member.designation,
+      joinDate: member.joinDate ? new Date(member.joinDate).toISOString().split("T")[0] : "",
+      qualification: member.qualification || "",
+      subject: member.subject || "",
+      phone: member.phone || "",
+      email: member.email || "",
+      isHeadmaster: member.isHeadmaster || false,
+      username: member.username || "",
+      password: "",
+      photoUrl: member.photoUrl || "",
+    });
+    setPhotoPreview(member.photoUrl || null);
+    setEditingId(member.id);
+    setIsOpen(true);
   };
 
   const handleDelete = (id: number) => {
@@ -141,7 +180,7 @@ export default function StaffAdmin() {
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Add New Staff Member</DialogTitle>
+              <DialogTitle>{editingId ? "Edit Staff Member" : "Add New Staff Member"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Photo Upload Section */}
@@ -266,19 +305,19 @@ export default function StaffAdmin() {
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Login Credentials (Must Have)</p>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label>Username *</Label>
-                      <Input required {...form.register("username")} placeholder="e.g. bhupen_bora" autoComplete="off" />
+                      <Label>Username {!editingId && "*"}</Label>
+                      <Input required={!editingId} {...form.register("username")} placeholder="e.g. bhupen_bora" autoComplete="off" />
                     </div>
                     <div className="space-y-1">
-                      <Label>Password *</Label>
-                      <Input required type="password" {...form.register("password")} placeholder="Set login password" autoComplete="new-password" />
+                      <Label>Password {!editingId && "*"}</Label>
+                      <Input required={!editingId} type="password" {...form.register("password")} placeholder={editingId ? "Leave blank to keep current" : "Set login password"} autoComplete="new-password" />
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">This staff member can login to the Staff Portal using these credentials.</p>
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={createStaff.isPending || isUploading} data-testid="button-submit-staff">
-                {createStaff.isPending ? "Saving..." : isUploading ? "Uploading photo..." : "Add Staff Member"}
+              <Button type="submit" className="w-full" disabled={createStaff.isPending || updateStaff.isPending || isUploading} data-testid="button-submit-staff">
+                {createStaff.isPending || updateStaff.isPending ? "Saving..." : isUploading ? "Uploading photo..." : (editingId ? "Save Changes" : "Add Staff Member")}
               </Button>
             </form>
           </DialogContent>
@@ -316,7 +355,11 @@ export default function StaffAdmin() {
                   <TableCell className="text-muted-foreground text-sm">{member.qualification ?? "—"}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">{member.phone ?? "—"}</TableCell>
                   <TableCell>
-                    <AlertDialog>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(member)} data-testid={`button-edit-staff-${member.id}`}>
+                        <Pencil className="w-3 h-3" />
+                      </Button>
+                      <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" data-testid={`button-delete-staff-${member.id}`}>
                           <Trash2 className="w-4 h-4" />
@@ -331,14 +374,15 @@ export default function StaffAdmin() {
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction 
                             disabled={deletingId === member.id}
-                            onClick={(e) => { e.preventDefault(); handleDelete(member.id); }} 
+                            onClick={() => handleDelete(member.id)} 
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             {deletingId === member.id ? "Deleting..." : "Delete"}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
-                    </AlertDialog>
+                      </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

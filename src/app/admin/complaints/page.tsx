@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useListComplaints, useDeleteComplaint } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,6 +22,15 @@ import { motion } from "framer-motion";
 export default function AdminComplaintsPage() {
   const { data: complaints, isLoading, isError } = useListComplaints();
   const deleteComplaint = useDeleteComplaint();
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const handleDelete = (id: number) => {
+    setDeletingId(id);
+    deleteComplaint.mutate(id, {
+      onSuccess: () => setDeletingId(null),
+      onError: () => setDeletingId(null),
+    });
+  };
 
   if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (isError) return <div className="p-12 text-destructive text-center">Failed to load complaints.</div>;
@@ -72,7 +82,13 @@ export default function AdminComplaintsPage() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => deleteComplaint.mutate(item.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+                          <AlertDialogAction 
+                            disabled={deletingId === item.id}
+                            onClick={() => handleDelete(item.id)} 
+                            className="bg-destructive text-destructive-foreground"
+                          >
+                            {deletingId === item.id ? "Deleting..." : "Delete"}
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>

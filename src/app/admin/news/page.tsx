@@ -37,6 +37,7 @@ type NewsForm = z.infer<typeof newsSchema>;
 export default function NewsAdmin() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const { data: news, isLoading } = useListNews();
   const createNews = useCreateNews();
@@ -86,9 +87,19 @@ export default function NewsAdmin() {
     );
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsCreateOpen(open);
+    if (!open) createForm.reset();
+  };
+
   const handleDelete = (id: number) => {
+    setDeletingId(id);
     deleteNews.mutate(id, {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListNewsQueryKey() }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListNewsQueryKey() });
+        setDeletingId(null);
+      },
+      onError: () => setDeletingId(null),
     });
   };
 
@@ -99,7 +110,7 @@ export default function NewsAdmin() {
           <h1 className="text-2xl font-bold text-foreground">News & Announcements</h1>
           <p className="text-muted-foreground text-sm mt-1">{news?.length ?? 0} items</p>
         </div>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <Dialog open={isCreateOpen} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2" data-testid="button-create-news">
               <Plus className="w-4 h-4" /> Create News
@@ -226,7 +237,13 @@ export default function NewsAdmin() {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(item.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+                            <AlertDialogAction 
+                              disabled={deletingId === item.id}
+                              onClick={() => handleDelete(item.id)} 
+                              className="bg-destructive text-destructive-foreground"
+                            >
+                              {deletingId === item.id ? "Deleting..." : "Delete"}
+                            </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>

@@ -55,14 +55,19 @@ export default function StudentsAdmin() {
   const [isUpscaleOpen, setIsUpscaleOpen] = useState(false);
   const [upscalePassword, setUpscalePassword] = useState("");
   const [upscaleLoading, setUpscaleLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const { data: currentUser } = useGetMe();
   const isPrivileged = currentUser?.role === "principal" || currentUser?.role === "vice_principal";
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  const queryParams: any = {};
+  if (search) queryParams.search = search;
+  if (className && className !== "all") queryParams.class = className;
+
   const { data: students, isLoading } = useListStudents(
-    { search: search || undefined, class: className || undefined },
-    { query: { queryKey: getListStudentsQueryKey({ search: search || undefined, class: className || undefined }) } }
+    queryParams,
+    { query: { queryKey: getListStudentsQueryKey(queryParams) } }
   );
 
   const createStudent = useCreateStudent();
@@ -106,16 +111,24 @@ export default function StudentsAdmin() {
     );
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsAddOpen(open);
+    if (!open) form.reset();
+  };
+
   const handleDelete = (id: number) => {
+    setDeletingId(id);
     deleteStudent.mutate(
       id,
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
           toast({ title: "Student deleted" });
+          setDeletingId(null);
         },
         onError: () => {
           toast({ title: "Failed to delete student", variant: "destructive" });
+          setDeletingId(null);
         }
       }
     );
@@ -160,7 +173,7 @@ export default function StudentsAdmin() {
               Upscale Classes
             </Button>
           )}
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+          <Dialog open={isAddOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
               <Button><Plus className="mr-2 h-4 w-4" /> Add Student</Button>
             </DialogTrigger>
@@ -319,10 +332,11 @@ export default function StudentsAdmin() {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction 
+                            disabled={deletingId === student.id}
                             onClick={() => handleDelete(student.id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            Delete
+                            {deletingId === student.id ? "Deleting..." : "Delete"}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

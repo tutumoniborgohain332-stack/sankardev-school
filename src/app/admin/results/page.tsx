@@ -250,6 +250,7 @@ function ResultForm({
 export default function ResultsAdmin() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingResult, setEditingResult] = useState<ExamResult | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [filterYear, setFilterYear] = useState("2024-25");
   const [filterClass, setFilterClass] = useState("all");
 
@@ -314,7 +315,11 @@ export default function ResultsAdmin() {
   };
 
   const handleDelete = (id: number) => {
-    deleteResult.mutate(id, { onSuccess: invalidate });
+    setDeletingId(id);
+    deleteResult.mutate(id, { 
+      onSuccess: () => { invalidate(); setDeletingId(null); },
+      onError: () => setDeletingId(null),
+    });
   };
 
   const editingForm = editingResult
@@ -463,7 +468,13 @@ export default function ResultsAdmin() {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(r.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+                            <AlertDialogAction 
+                              disabled={deletingId === r.id}
+                              onClick={() => handleDelete(r.id)} 
+                              className="bg-destructive text-destructive-foreground"
+                            >
+                              {deletingId === r.id ? "Deleting..." : "Delete"}
+                            </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>

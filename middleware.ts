@@ -62,7 +62,12 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const [, role] = payload.split(":");
+      const [timestampStr, role] = payload.split(":");
+      
+      const timestamp = parseInt(timestampStr, 10);
+      if (Date.now() - timestamp > 7 * 24 * 60 * 60 * 1000) {
+        throw new Error("Session expired");
+      }
       
       const isPrivileged = ["admin", "principal", "vice_principal"].includes(role);
       const isStaff = isPrivileged || role === "staff";

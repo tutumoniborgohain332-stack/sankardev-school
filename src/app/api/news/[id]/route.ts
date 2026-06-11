@@ -17,12 +17,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   try {
     const data = await request.json();
+    if (data.publishedAt) data.publishedAt = new Date(data.publishedAt);
+    delete data.updatedAt;
+    
     const [newsItem] = await db
       .update(newsTable)
-      .set({
-        ...data,
-        updatedAt: new Date().toISOString()
-      })
+      .set(data)
       .where(eq(newsTable.id, Number((await params).id)))
       .returning();
 

@@ -84,7 +84,7 @@ export default function Contact() {
                   <div>
                     <h3 className="font-bold text-lg mb-1">School Address</h3>
                     <p className="text-muted-foreground">
-                      Sankardev Sishu Vidya Niketan Mathurapure<br />
+                      Sankardev Sishu Vidya Niketan Mathurapur<br />
                       Mathurapur, Assam<br />
                       PIN: 785689, India
                     </p>

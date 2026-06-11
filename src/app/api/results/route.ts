@@ -71,12 +71,11 @@ export async function POST(request: Request) {
     const marksObtained = parseInt(parsedData.marksObtained as unknown as string, 10) || 0;
     const totalMarks = parseInt(parsedData.totalMarks as unknown as string, 10) || 100;
     
-    const calculatedPercentage = ((marksObtained / totalMarks) * 100).toFixed(2) + "%";
+    const calculatedPercentage = ((marksObtained / totalMarks) * 100).toFixed(2);
 
     const [result] = await db.insert(resultsTable).values({
       ...parsedData,
       percentage: calculatedPercentage,
-      uploadedBy: String(user.userId),
     }).returning();
 
     return NextResponse.json(result, { status: 201 });

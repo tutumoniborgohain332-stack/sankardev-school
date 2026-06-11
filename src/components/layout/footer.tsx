@@ -9,7 +9,7 @@ export function Footer() {
             <h2 className="text-2xl font-serif font-bold text-accent mb-4 drop-shadow-sm">
               শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
             </h2>
-            <h3 className="text-lg font-semibold mb-4">Sankardev Sishu Vidya Niketan Mathurapure</h3>
+            <h3 className="text-lg font-semibold mb-4">Sankardev Sishu Vidya Niketan Mathurapur</h3>
             <p className="max-w-md text-primary-foreground/80 leading-relaxed">
               
             </p>
@@ -38,7 +38,7 @@ export function Footer() {
         </div>
         
         <div className="pt-8 border-t border-primary-foreground/20 text-center text-sm text-primary-foreground/60 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>&copy; {new Date().getFullYear()} Sankardev Sishu Vidya Niketan Mathurapure. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Sankardev Sishu Vidya Niketan Mathurapur. All rights reserved.</p>
           <p>Under Shishu Shiksha Samiti, Assam</p>
         </div>
       </div>

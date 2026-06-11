@@ -44,7 +44,8 @@ export default function Results() {
           examType: (query.examType && query.examType !== "all") ? query.examType : undefined,
           academicYear: query.academicYear || undefined,
         }
-      : undefined
+      : undefined,
+    { query: { enabled: !!query } }
   );
 
   const handleSearch = (e: React.FormEvent) => {
@@ -71,7 +72,7 @@ export default function Results() {
             </div>
             <h1 className="text-4xl font-serif font-bold text-primary mb-2">Exam Results</h1>
             <p className="text-xl font-bold text-foreground/80">পৰীক্ষাৰ ফলাফল</p>
-            <p className="text-muted-foreground mt-2">Sankardev Sishu Vidya Niketan Mathurapure</p>
+            <p className="text-muted-foreground mt-2">Sankardev Sishu Vidya Niketan Mathurapur</p>
           </motion.div>
 
           {/* Search Form */}
@@ -212,7 +213,7 @@ export default function Results() {
                         {/* School Header (for print) */}
                         <div className="hidden print:block text-center py-4 border-b">
                           <h2 className="text-xl font-bold">শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ</h2>
-                          <p className="text-sm">Sankardev Sishu Vidya Niketan Mathurapure</p>
+                          <p className="text-sm">Sankardev Sishu Vidya Niketan Mathurapur</p>
                           <h3 className="text-lg font-bold mt-1">{result.examType} Examination — {result.academicYear}</h3>
                         </div>
 
