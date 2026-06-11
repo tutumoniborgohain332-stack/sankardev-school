@@ -48,10 +48,11 @@ export function Header() {
                   </button>
                 </div>
               ) : (
-                <>
-                  {/* <Link href="/login/student" className="hover:underline">Student Login</Link> */}
-                  <Link href="/login/staff" className="hover:underline">Staff Login</Link>
-                </>
+                <div className="flex items-center gap-3">
+                  <Link href="/login/student" className="hover:text-accent font-medium transition-colors">Student Login</Link>
+                  <span className="text-primary-foreground/50">|</span>
+                  <Link href="/login/staff" className="hover:text-accent font-medium transition-colors">Staff Login</Link>
+                </div>
               )}
             </div>
           </div>
