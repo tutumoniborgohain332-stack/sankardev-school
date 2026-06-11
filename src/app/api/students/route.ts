@@ -17,14 +17,7 @@ export async function GET(request: Request) {
   
   // If the user is a student, restrict to their own records.
   if (user.role === "student") {
-    // Need to find the student ID from referenceId
-    const [currentUser] = await db.select({ referenceId: usersTable.referenceId })
-                                  .from(usersTable)
-                                  .where(eq(usersTable.id, user.userId));
-    if (!currentUser?.referenceId) {
-       return NextResponse.json([]);
-    }
-    conditions.push(eq(studentsTable.id, parseInt(currentUser.referenceId, 10)));
+    conditions.push(eq(studentsTable.userId, user.userId));
   } else {
     if (className) conditions.push(eq(studentsTable.className, className));
     if (search) conditions.push(ilike(studentsTable.studentName, `%${search}%`));
@@ -87,4 +80,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
-

@@ -42,7 +42,7 @@ export default function PortalStudent() {
 
   const handleLogout = () => {
     logout.mutate(undefined, {
-      onSuccess: () => router.push("/")
+      onSuccess: () => window.location.href = "/"
     });
   };
 
