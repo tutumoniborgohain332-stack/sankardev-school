@@ -48,7 +48,7 @@ export default function LoginStaff() {
           description: `Welcome back, ${res.name}.`,
         });
         if (res.role === "admin" || res.role === "principal" || res.role === "vice_principal") {
-          window.location.href = "/admin";
+          window.location.href = "/admin/dashboard";
         } else {
           window.location.href = "/portal/staff";
         }

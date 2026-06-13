@@ -89,6 +89,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Redirect /admin directly to /admin/dashboard to avoid client-side navigation hook errors
+  if (path === "/admin" || path === "/admin/") {
+    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  }
+
   return NextResponse.next();
 }
 
