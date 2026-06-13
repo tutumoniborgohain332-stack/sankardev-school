@@ -12,10 +12,20 @@ if (!process.env.DATABASE_URL) {
 
 const connectionString = process.env.DATABASE_URL.replace("?sslmode=require", "").replace("&sslmode=require", "").replace("sslmode=require", "");
 
-export const pool = new Pool({ 
+// Use a global variable to preserve the pool across HMR reloads in development
+// and prevent connection exhaustion in serverless environments
+const globalForDb = globalThis as unknown as {
+  pool: pg.Pool | undefined;
+};
+
+export const pool = globalForDb.pool ?? new Pool({ 
   connectionString,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  max: 1, // Keep max connections low per lambda instance to prevent reaching the 15 limit
 });
+
+if (process.env.NODE_ENV !== "production") globalForDb.pool = pool;
+
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";
