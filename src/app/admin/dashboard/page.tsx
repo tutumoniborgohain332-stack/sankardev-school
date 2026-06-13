@@ -3,8 +3,12 @@
 import { useGetDashboardStats, useGetClassStats, useListNews } from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { Bar, XAxis, YAxis, Tooltip as RechartsTooltip, CartesianGrid } from "recharts";
+import dynamic from "next/dynamic";
 import { Users, UserSquare2, FileText, Image as ImageIcon } from "lucide-react";
+
+const ResponsiveContainer = dynamic(() => import("recharts").then(mod => mod.ResponsiveContainer), { ssr: false });
+const BarChart = dynamic(() => import("recharts").then(mod => mod.BarChart), { ssr: false });
 import { motion } from "framer-motion";
 
 export default function Dashboard() {

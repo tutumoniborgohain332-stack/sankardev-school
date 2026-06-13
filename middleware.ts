@@ -62,7 +62,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const [timestampStr, role] = payload.split(":");
+      const [userIdStr, role, timestampStr] = payload.split(":");
       
       const timestamp = parseInt(timestampStr, 10);
       if (Date.now() - timestamp > 7 * 24 * 60 * 60 * 1000) {
