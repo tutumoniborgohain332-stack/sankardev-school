@@ -48,9 +48,9 @@ export default function LoginStaff() {
           description: `Welcome back, ${res.name}.`,
         });
         if (res.role === "admin" || res.role === "principal" || res.role === "vice_principal") {
-          router.push("/admin");
+          window.location.href = "/admin";
         } else {
-          router.push("/portal/staff");
+          window.location.href = "/portal/staff";
         }
       },
       onError: () => {

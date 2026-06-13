@@ -44,7 +44,7 @@ export default function LoginStudent() {
           title: "Login Successful",
           description: "Welcome to the student portal.",
         });
-        router.push("/portal/student");
+        window.location.href = "/portal/student";
       },
       onError: (error: any) => {
         let errorMsg = "Invalid credentials. Please try again.";
