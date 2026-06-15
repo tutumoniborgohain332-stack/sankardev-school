@@ -236,9 +236,9 @@ export default function Admission() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border rounded-xl p-4 bg-muted/10">
-                      {/* Father's Info */}
-                      <div className="space-y-4">
+                    <div className="space-y-4 border rounded-xl p-4 bg-muted/10">
+                      {/* Row 1: Names */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex gap-4">
                           <FormField
                             control={form.control}
@@ -275,38 +275,12 @@ export default function Admission() {
                         </div>
                         <FormField
                           control={form.control}
-                          name="fatherPhone"
+                          name="motherName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Father's Phone No. (পিতৃৰ ফোন)</FormLabel>
+                              <FormLabel>Mother's Name (মাতৃৰ নাম)</FormLabel>
                               <FormControl>
-                                <Input placeholder="10-digit number" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="fatherAadhar"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Father's Aadhar No. (আধাৰ নম্বৰ)</FormLabel>
-                              <FormControl>
-                                <Input placeholder="12-digit Aadhar" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="fatherPan"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Father's PAN No. (পেন নম্বৰ)</FormLabel>
-                              <FormControl>
-                                <Input placeholder="ABCDE1234F" className="uppercase" {...field} />
+                                <Input placeholder="Mother's name" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -314,16 +288,16 @@ export default function Admission() {
                         />
                       </div>
 
-                      {/* Mother's Info */}
-                      <div className="space-y-4">
+                      {/* Row 2: Phones */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
-                          name="motherName"
+                          name="fatherPhone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Mother's Name (মাতৃৰ নাম)</FormLabel>
+                              <FormLabel>Father's Phone No. (পিতৃৰ ফোন)</FormLabel>
                               <FormControl>
-                                <Input placeholder="Mother's name" {...field} />
+                                <Input placeholder="10-digit number" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -342,6 +316,23 @@ export default function Admission() {
                             </FormItem>
                           )}
                         />
+                      </div>
+
+                      {/* Row 3: Aadhar */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="fatherAadhar"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Father's Aadhar No. (আধাৰ নম্বৰ)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="12-digit Aadhar" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         <FormField
                           control={form.control}
                           name="motherAadhar"
@@ -350,6 +341,23 @@ export default function Admission() {
                               <FormLabel>Mother's Aadhar No. (আধাৰ নম্বৰ)</FormLabel>
                               <FormControl>
                                 <Input placeholder="12-digit Aadhar" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Row 4: PAN */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="fatherPan"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Father's PAN No. (পেন নম্বৰ)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="ABCDE1234F" className="uppercase" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
