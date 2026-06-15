@@ -165,6 +165,9 @@ export default function AdmissionsAdmin() {
                 <div>
                   <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Student Details</h3>
                   <DetailRow label="Student Name" value={selectedAdmission.studentName} />
+                  <DetailRow label="APAAR ID" value={selectedAdmission.apaarId} />
+                  <DetailRow label="Student Aadhar" value={selectedAdmission.studentAadhar} />
+                  <DetailRow label="Student PAN" value={selectedAdmission.studentPan} />
                   <DetailRow label="Father's Name" value={selectedAdmission.fatherName} />
                   <DetailRow label="Father's Phone" value={selectedAdmission.fatherPhone} />
                   <DetailRow label="Father's Aadhar" value={selectedAdmission.fatherAadhar} />
@@ -179,7 +182,7 @@ export default function AdmissionsAdmin() {
                   <DetailRow label="Caste" value={selectedAdmission.caste} />
                   <DetailRow label="Religion" value={selectedAdmission.religion} />
                   <DetailRow label="Nationality" value={selectedAdmission.nationality} />
-                  <DetailRow label="APAAR ID" value={selectedAdmission.apaarId} />
+
                 </div>
 
                 <Separator />

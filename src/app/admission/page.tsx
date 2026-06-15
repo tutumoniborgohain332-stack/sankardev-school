@@ -45,6 +45,8 @@ const formSchema = z.object({
   siblingClass: z.string().optional(),
   siblingSection: z.string().optional(),
   specialCategory: z.string().optional(),
+  studentAadhar: z.string().optional().refine(val => !val || /^[0-9]{12}$/.test(val), "Must be exactly 12 digits"),
+  studentPan: z.string().optional().refine(val => !val || /^[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}$/.test(val), "Invalid PAN format"),
   apaarId: z.string().optional(),
   fatherPhone: z.string().optional().refine(val => !val || /^[0-9]{10}$/.test(val), "Must be exactly 10 digits"),
   fatherAadhar: z.string().optional().refine(val => !val || /^[0-9]{12}$/.test(val), "Must be exactly 12 digits"),
@@ -96,6 +98,8 @@ export default function Admission() {
       siblingSection: "",
       specialCategory: "",
       apaarId: "",
+      studentAadhar: "",
+      studentPan: "",
       fatherPhone: "",
       fatherAadhar: "",
       fatherPan: "",
@@ -138,6 +142,8 @@ export default function Admission() {
         siblingSection: values.siblingSection,
         specialCategory: values.specialCategory,
         apaarId: values.apaarId,
+        studentAadhar: values.studentAadhar,
+        studentPan: values.studentPan,
         fatherPhone: values.fatherPhone,
         fatherAadhar: values.fatherAadhar,
         fatherPan: values.fatherPan,
@@ -234,6 +240,48 @@ export default function Admission() {
                           )}
                         />
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="apaarId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Student APAAR ID</FormLabel>
+                            <FormControl>
+                              <Input placeholder="APAAR ID" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="studentAadhar"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Student Aadhar No.</FormLabel>
+                            <FormControl>
+                              <Input placeholder="12-digit Aadhar" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="studentPan"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Student PAN No.</FormLabel>
+                            <FormControl>
+                              <Input placeholder="ABCDE1234F" className="uppercase" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
 
                     <div className="space-y-4 border rounded-xl p-4 bg-muted/10">
@@ -517,22 +565,7 @@ export default function Admission() {
                     </div>
                   </div>
 
-                  {/* Special Info */}
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-bold border-b pb-2 text-primary">4. Additional Information (অতিৰিক্ত তথ্য)</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                      <FormField control={form.control} name="apaarId" render={({field}) => (
-                        <FormItem><FormLabel>APAAR ID</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
-                      )} />
-                      <FormField control={form.control} name="fatherPhone" render={({field}) => (
-                        <FormItem><FormLabel>Father's Phone (পিতৃৰ ফোন)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
-                      )} />
-                      <FormField control={form.control} name="motherPhone" render={({field}) => (
-                        <FormItem><FormLabel>Mother's Phone (মাতৃৰ ফোন)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
-                      )} />
-                    </div>
-                  </div>
 
                   {/* Declaration */}
                   <div className="space-y-6 bg-muted/20 p-6 rounded-xl border">

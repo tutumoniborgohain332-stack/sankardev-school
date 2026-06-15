@@ -27,6 +27,8 @@ export const admissionsTable = pgTable("admissions", {
   reasonForLeaving: text("reason_for_leaving"),
   appliedForClass: text("applied_for_class").notNull(),
   apaarId: text("apaar_id"),
+  studentAadhar: text("student_aadhar"),
+  studentPan: text("student_pan"),
   siblingName: text("sibling_name"),
   siblingClass: text("sibling_class"),
   siblingSection: text("sibling_section"),
