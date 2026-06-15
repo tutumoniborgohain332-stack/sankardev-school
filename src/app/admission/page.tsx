@@ -177,35 +177,7 @@ export default function Admission() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
                   
-                  {/* Header Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-muted/30 rounded-xl">
-                    <FormField
-                      control={form.control}
-                      name="serialNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Serial No. (ক্রমিক নং)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Office Use Only" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="classRollNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Class Roll No. (গণীতৰ ক্ৰমাংক)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Office Use Only" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+
 
                   {/* Student Details */}
                   <div className="space-y-6">
