@@ -64,7 +64,7 @@ export default function AdmissionsAdmin() {
 
   const handleStatusUpdate = (id: number, status: "approved" | "rejected") => {
     updateStatus.mutate(
-      { id, data: { status, remarks: remarks || undefined } },
+      { id, status, remarks: remarks || undefined },
       {
         onSuccess: (updated) => {
           queryClient.invalidateQueries({ queryKey: getListAdmissionsQueryKey() });
