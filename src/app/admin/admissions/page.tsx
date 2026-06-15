@@ -264,7 +264,6 @@ export default function AdmissionsAdmin() {
                         </Button>
                       </div>
                     </div>
-                    </div>
                   </>
                 )}
 
