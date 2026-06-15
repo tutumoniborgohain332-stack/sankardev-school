@@ -47,6 +47,7 @@ const formSchema = z.object({
   specialCategory: z.string().optional(),
   studentAadhar: z.string().optional().refine(val => !val || /^[0-9]{12}$/.test(val), "Must be exactly 12 digits"),
   studentPan: z.string().optional().refine(val => !val || /^[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}$/.test(val), "Invalid PAN format"),
+
   apaarId: z.string().optional(),
   fatherPhone: z.string().optional().refine(val => !val || /^[0-9]{10}$/.test(val), "Must be exactly 10 digits"),
   fatherAadhar: z.string().optional().refine(val => !val || /^[0-9]{12}$/.test(val), "Must be exactly 12 digits"),
@@ -195,14 +196,12 @@ export default function Admission() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
                   
-
-
                   {/* Student Details */}
                   <div className="space-y-6">
                     <h3 className="text-xl font-bold border-b pb-2 text-primary">1. Student Details (ছাত্র/ছাত্রীৰ বিৱৰণ)</h3>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                      <div className="md:col-span-3">
+                    <div className="space-y-4">
+                      <div className="flex gap-4">
                         <FormField
                           control={form.control}
                           name="studentNamePrefix"
@@ -211,29 +210,66 @@ export default function Admission() {
                               <FormLabel>Prefix</FormLabel>
                               <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                                 <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Prefix" />
-                                  </SelectTrigger>
+                                  <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   <SelectItem value="Sri">Sri</SelectItem>
-                                  <SelectItem value="Smt">Smt.</SelectItem>
-                                  <SelectItem value="Md">Md.</SelectItem>
+                                  <SelectItem value="Miss">Miss</SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormItem>
                           )}
                         />
-                      </div>
-                      <div className="md:col-span-9">
                         <FormField
                           control={form.control}
                           name="studentName"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Student's Full Name (ছাত্র/ছাত্রীৰ নাম)</FormLabel>
+                            <FormItem className="flex-1">
+                              <FormLabel>Name of Student in Full (ছাত্ৰ/ছাত্ৰীৰ নাম)</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter full name" {...field} />
+                                <Input placeholder="Enter student's name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="apaarId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Student APAAR ID</FormLabel>
+                              <FormControl>
+                                <Input placeholder="APAAR ID" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="studentAadhar"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Student Aadhar No.</FormLabel>
+                              <FormControl>
+                                <Input placeholder="12-digit Aadhar" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="studentPan"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Student PAN No.</FormLabel>
+                              <FormControl>
+                                <Input placeholder="ABCDE1234F" className="uppercase" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -242,50 +278,7 @@ export default function Admission() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="apaarId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Student APAAR ID</FormLabel>
-                            <FormControl>
-                              <Input placeholder="APAAR ID" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="studentAadhar"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Student Aadhar No.</FormLabel>
-                            <FormControl>
-                              <Input placeholder="12-digit Aadhar" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="studentPan"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Student PAN No.</FormLabel>
-                            <FormControl>
-                              <Input placeholder="ABCDE1234F" className="uppercase" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
                     <div className="space-y-4 border rounded-xl p-4 bg-muted/10">
-                      {/* Row 1: Names */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex gap-4">
                           <FormField
@@ -336,7 +329,6 @@ export default function Admission() {
                         />
                       </div>
 
-                      {/* Row 2: Phones */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
@@ -366,7 +358,6 @@ export default function Admission() {
                         />
                       </div>
 
-                      {/* Row 3: Aadhar */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
@@ -396,7 +387,6 @@ export default function Admission() {
                         />
                       </div>
 
-                      {/* Row 4: PAN */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
@@ -512,10 +502,9 @@ export default function Admission() {
                         <FormItem><FormLabel>Address (ঠিকনা)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
                       )} />
                       <FormField control={form.control} name="previousClass" render={({field}) => (
-                        <FormItem><FormLabel>Last Class Attended (শেষ শ্ৰেণী)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
+                        <FormItem><FormLabel>Class studied previously (যোৱা বছৰ পঢ়া শ্ৰেণী)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
                       )} />
                       <FormField control={form.control} name="reasonForLeaving" render={({field}) => (
-                        <FormItem>
                           <FormLabel>Reason for Leaving (বিদ্যালয় এৰাৰ কাৰণ)</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select reason" /></SelectTrigger></FormControl>
