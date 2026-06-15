@@ -4,7 +4,8 @@ import { admissionsTable } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getSession, isPrivilegedRole } from "@/lib/auth";
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const user = await getSession();
   if (!user || !isPrivilegedRole(user.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
