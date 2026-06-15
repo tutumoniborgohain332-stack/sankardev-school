@@ -278,7 +278,7 @@ export default function Admission() {
                       </div>
                     </div>
 
-                    <div className="space-y-4 border rounded-xl p-4 bg-muted/10">
+                    <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex gap-4">
                           <FormField
@@ -505,6 +505,7 @@ export default function Admission() {
                         <FormItem><FormLabel>Class studied previously (যোৱা বছৰ পঢ়া শ্ৰেণী)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
                       )} />
                       <FormField control={form.control} name="reasonForLeaving" render={({field}) => (
+                        <FormItem>
                           <FormLabel>Reason for Leaving (বিদ্যালয় এৰাৰ কাৰণ)</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select reason" /></SelectTrigger></FormControl>
