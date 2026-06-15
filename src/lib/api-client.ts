@@ -142,6 +142,13 @@ export function useUpdateAdmissionStatus() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admissions"] }),
   });
 }
+export function useDeleteAdmission() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => fetcher(`/api/admissions/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admissions"] }),
+  });
+}
 
 // Gallery
 export function getListGalleryQueryKey() { return ["gallery"]; }

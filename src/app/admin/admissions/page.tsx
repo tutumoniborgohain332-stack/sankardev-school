@@ -5,6 +5,7 @@ import {
   useListAdmissions,
   getListAdmissionsQueryKey,
   useUpdateAdmissionStatus,
+  useDeleteAdmission,
 } from "@/lib/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Eye, Clock } from "lucide-react";
+import { CheckCircle, XCircle, Eye, Clock, Trash2 } from "lucide-react";
 
 import type { AdmissionApplication } from "@/lib/api-client";
 import { useAdmissionOpen, useToggleAdmission } from "@/hooks/use-admission-settings";
@@ -51,6 +52,15 @@ export default function AdmissionsAdmin() {
   const params = selectedTab !== "all" ? { status: selectedTab as "pending" | "approved" | "rejected" } : undefined;
   const { data: admissions, isLoading } = useListAdmissions(params);
   const updateStatus = useUpdateAdmissionStatus();
+  const deleteAdmission = useDeleteAdmission();
+
+  const handleDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this application? This cannot be undone.")) {
+      deleteAdmission.mutate(id, {
+        onSuccess: () => setSelectedAdmission(null),
+      });
+    }
+  };
 
   const handleStatusUpdate = (id: number, status: "approved" | "rejected") => {
     updateStatus.mutate(
@@ -254,8 +264,21 @@ export default function AdmissionsAdmin() {
                         </Button>
                       </div>
                     </div>
+                    </div>
                   </>
                 )}
+
+                <div className="mt-8 pt-4 border-t border-border/50 flex justify-end">
+                  <Button
+                    variant="outline"
+                    className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                    onClick={() => handleDelete(selectedAdmission.id)}
+                    disabled={deleteAdmission.isPending}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Application
+                  </Button>
+                </div>
               </div>
             </>
           )}
