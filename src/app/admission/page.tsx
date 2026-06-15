@@ -416,9 +416,7 @@ export default function Admission() {
                   <div className="space-y-6">
                     <h3 className="text-xl font-bold border-b pb-2 text-primary">4. Additional Information (অতিৰিক্ত তথ্য)</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField control={form.control} name="specialCategory" render={({field}) => (
-                        <FormItem><FormLabel>Special Category</FormLabel><FormControl><Input placeholder="Arts/Science/Commerce" {...field} /></FormControl><FormMessage/></FormItem>
-                      )} />
+
                       <FormField control={form.control} name="apaarId" render={({field}) => (
                         <FormItem><FormLabel>APAAR ID</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
                       )} />
