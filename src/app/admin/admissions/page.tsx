@@ -166,7 +166,13 @@ export default function AdmissionsAdmin() {
                   <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">Student Details</h3>
                   <DetailRow label="Student Name" value={selectedAdmission.studentName} />
                   <DetailRow label="Father's Name" value={selectedAdmission.fatherName} />
+                  <DetailRow label="Father's Phone" value={selectedAdmission.fatherPhone} />
+                  <DetailRow label="Father's Aadhar" value={selectedAdmission.fatherAadhar} />
+                  <DetailRow label="Father's PAN" value={selectedAdmission.fatherPan} />
                   <DetailRow label="Mother's Name" value={selectedAdmission.motherName} />
+                  <DetailRow label="Mother's Phone" value={selectedAdmission.motherPhone} />
+                  <DetailRow label="Mother's Aadhar" value={selectedAdmission.motherAadhar} />
+                  <DetailRow label="Mother's PAN" value={selectedAdmission.motherPan} />
                   <DetailRow label="Date of Birth" value={selectedAdmission.dateOfBirth} />
                   <DetailRow label="Age" value={selectedAdmission.age} />
                   <DetailRow label="Blood Group" value={selectedAdmission.bloodGroup} />
@@ -183,8 +189,6 @@ export default function AdmissionsAdmin() {
                   <DetailRow label="Permanent Address" value={selectedAdmission.permanentAddress} />
                   <DetailRow label="Present Address" value={selectedAdmission.presentAddress} />
                   <DetailRow label="PIN Code" value={selectedAdmission.pinCode} />
-                  <DetailRow label="Father's Phone" value={selectedAdmission.fatherPhone} />
-                  <DetailRow label="Mother's Phone" value={selectedAdmission.motherPhone} />
                   <DetailRow label="Guardian Name" value={selectedAdmission.guardianName} />
                   <DetailRow label="Guardian Relation" value={selectedAdmission.guardianRelation} />
                 </div>

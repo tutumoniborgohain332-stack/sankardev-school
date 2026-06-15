@@ -47,7 +47,11 @@ const formSchema = z.object({
   specialCategory: z.string().optional(),
   apaarId: z.string().optional(),
   fatherPhone: z.string().optional().refine(val => !val || /^[0-9]{10}$/.test(val), "Must be exactly 10 digits"),
+  fatherAadhar: z.string().optional().refine(val => !val || /^[0-9]{12}$/.test(val), "Must be exactly 12 digits"),
+  fatherPan: z.string().optional().refine(val => !val || /^[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}$/.test(val), "Invalid PAN format"),
   motherPhone: z.string().optional().refine(val => !val || /^[0-9]{10}$/.test(val), "Must be exactly 10 digits"),
+  motherAadhar: z.string().optional().refine(val => !val || /^[0-9]{12}$/.test(val), "Must be exactly 12 digits"),
+  motherPan: z.string().optional().refine(val => !val || /^[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}$/.test(val), "Invalid PAN format"),
   place: z.string().min(2, "Place is required"),
   date: z.string().min(10, "Date is required"),
 });
@@ -93,7 +97,11 @@ export default function Admission() {
       specialCategory: "",
       apaarId: "",
       fatherPhone: "",
+      fatherAadhar: "",
+      fatherPan: "",
       motherPhone: "",
+      motherAadhar: "",
+      motherPan: "",
       place: "",
       date: "",
     },
@@ -131,7 +139,11 @@ export default function Admission() {
         specialCategory: values.specialCategory,
         apaarId: values.apaarId,
         fatherPhone: values.fatherPhone,
+        fatherAadhar: values.fatherAadhar,
+        fatherPan: values.fatherPan,
         motherPhone: values.motherPhone,
+        motherAadhar: values.motherAadhar,
+        motherPan: values.motherPan,
       }
     }, {
       onSuccess: () => {
@@ -224,54 +236,139 @@ export default function Admission() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="flex gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border rounded-xl p-4 bg-muted/10">
+                      {/* Father's Info */}
+                      <div className="space-y-4">
+                        <div className="flex gap-4">
+                          <FormField
+                            control={form.control}
+                            name="fatherNamePrefix"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Prefix</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="Sri">Sri</SelectItem>
+                                    <SelectItem value="Late">Late</SelectItem>
+                                    <SelectItem value="Dr">Dr.</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="fatherName"
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormLabel>Father's Name (পিতৃৰ নাম)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Father's name" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                         <FormField
                           control={form.control}
-                          name="fatherNamePrefix"
+                          name="fatherPhone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Prefix</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="Sri">Sri</SelectItem>
-                                  <SelectItem value="Late">Late</SelectItem>
-                                  <SelectItem value="Dr">Dr.</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <FormLabel>Father's Phone No. (পিতৃৰ ফোন)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="10-digit number" {...field} />
+                              </FormControl>
+                              <FormMessage />
                             </FormItem>
                           )}
                         />
                         <FormField
                           control={form.control}
-                          name="fatherName"
+                          name="fatherAadhar"
                           render={({ field }) => (
-                            <FormItem className="flex-1">
-                              <FormLabel>Father's Name (পিতৃৰ নাম)</FormLabel>
+                            <FormItem>
+                              <FormLabel>Father's Aadhar No. (আধাৰ নম্বৰ)</FormLabel>
                               <FormControl>
-                                <Input placeholder="Father's name" {...field} />
+                                <Input placeholder="12-digit Aadhar" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="fatherPan"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Father's PAN No. (পেন নম্বৰ)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="ABCDE1234F" className="uppercase" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-                      <FormField
-                        control={form.control}
-                        name="motherName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Mother's Name (মাতৃৰ নাম)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Mother's name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
+                      {/* Mother's Info */}
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="motherName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mother's Name (মাতৃৰ নাম)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Mother's name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="motherPhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mother's Phone No. (মাতৃৰ ফোন)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="10-digit number" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="motherAadhar"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mother's Aadhar No. (আধাৰ নম্বৰ)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="12-digit Aadhar" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="motherPan"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mother's PAN No. (পেন নম্বৰ)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="ABCDE1234F" className="uppercase" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-4">
