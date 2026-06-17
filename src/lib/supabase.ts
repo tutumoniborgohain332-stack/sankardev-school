@@ -27,7 +27,7 @@ export async function uploadImageWithCompression(file: File, bucketName: string 
     }
 
     const formData = new FormData();
-    formData.append("file", fileToUpload);
+    formData.append("file", fileToUpload, file.name);
     formData.append("bucketName", bucketName);
 
     const res = await fetch("/api/upload", {
