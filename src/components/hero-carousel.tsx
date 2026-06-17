@@ -67,10 +67,17 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
           className="max-w-4xl mx-auto p-4 md:p-8"
         >
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif text-white mb-4 drop-shadow-lg">
-            শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
+            <span className="sr-only">Sankardev Sishu Vidya Niketan, Mathurapur</span>
+            <span aria-hidden="true">শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ</span>
           </h1>
           <h2 className="text-2xl md:text-3xl text-white/95 mb-3 font-serif">Sankardev Sishu Vidya Niketan Mathurapur</h2>
-          <span className="text-xl md:text-2xl text-primary font-bold block mb-8 uppercase tracking-[0.2em]">Mathurapur</span>
+          <span className="text-xl md:text-2xl text-primary font-bold block mb-4 uppercase tracking-[0.2em]">Mathurapur</span>
+          
+          {/* SEO Text Hidden */}
+          <p className="sr-only">
+            Welcome to Mathurapure Sankardev, also known as Sankardev Mathurapure or Niketan Mathurapure. 
+            We are the premier Sankardev Sishu Vidya Niketan serving the Mathurapur region.
+          </p>
           <p className="text-base md:text-lg text-white/90 mb-10 max-w-2xl mx-auto font-medium drop-shadow-md"></p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {admissionOpen && (

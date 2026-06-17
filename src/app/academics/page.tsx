@@ -24,6 +24,7 @@ export default function Academics() {
             transition={{ delay: 0.1 }}
             className="text-lg max-w-2xl mx-auto opacity-90"
           >
+            Sankardev Sishu Vidya Niketan Mathurapur offers a holistic academic curriculum blending modern education with our rich cultural heritage.
           </motion.p>
         </div>
       </div>
