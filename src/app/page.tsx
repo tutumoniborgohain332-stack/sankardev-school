@@ -33,10 +33,10 @@ export default async function Home() {
       <HeroCarousel admissionOpen={admissionOpen} />
 
       {/* Stats Section */}
-      <FadeIn className="py-16 bg-gradient-to-br from-white to-orange-50/30 relative -mt-10 mx-4 md:mx-12 lg:mx-24 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-20 border border-border backdrop-blur-md">
+      <FadeIn className="py-8 bg-gradient-to-br from-white to-orange-50/30 relative -mt-4 mx-4 md:mx-12 lg:mx-24 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-20 border border-border backdrop-blur-md">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 group hover:-translate-y-1 transition-transform">
+            <div className="text-center p-4 group hover:-translate-y-1 transition-transform">
               <div className="mx-auto w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Users className="w-8 h-8" />
               </div>
@@ -44,7 +44,7 @@ export default async function Home() {
               <p className="text-muted-foreground font-medium uppercase tracking-wider text-sm">Active Students</p>
             </div>
 
-            <div className="text-center p-6 border-t md:border-t-0 md:border-l md:border-r border-border group hover:-translate-y-1 transition-transform">
+            <div className="text-center p-4 border-t md:border-t-0 md:border-l md:border-r border-border group hover:-translate-y-1 transition-transform">
               <div className="mx-auto w-16 h-16 bg-secondary/20 text-secondary-foreground rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <GraduationCap className="w-8 h-8" />
               </div>
@@ -52,7 +52,7 @@ export default async function Home() {
               <p className="text-muted-foreground font-medium uppercase tracking-wider text-sm">Dedicated Faculty</p>
             </div>
 
-            <div className="text-center p-6 border-t md:border-t-0 border-border group hover:-translate-y-1 transition-transform">
+            <div className="text-center p-4 border-t md:border-t-0 border-border group hover:-translate-y-1 transition-transform">
               <div className="mx-auto w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Building2 className="w-8 h-8" />
               </div>
