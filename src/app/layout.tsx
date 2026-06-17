@@ -23,6 +23,13 @@ export const metadata: Metadata = {
   },
   description: "Official website of Sankardev Sishu Vidya Niketan Mathurapur. Fostering excellence in education, culture, and discipline under Shishu Shiksha Samiti, Assam. Recognized as a top educational institution serving Charaideo and Sivasagar districts.",
   keywords: [
+    "Mathurapure",
+    "Sankardev",
+    "Mathurapure Sankardev",
+    "Sankardev Mathurapure",
+    "Niketan",
+    "Mathurapure Niketan",
+    "Niketan Mathurapure",
     "SSVN Mathurapur", 
     "Sankardev Sishu Vidya Niketan", 
     "Mathurapur School", 
@@ -84,6 +91,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
   "name": "Sankardev Sishu Vidya Niketan, Mathurapur",
+  "alternateName": ["Mathurapure", "Sankardev", "Mathurapure Sankardev", "Sankardev Mathurapure", "Mathurapure Niketan", "Niketan Mathurapure"],
   "url": BASE_URL,
   "logo": `${BASE_URL}/logo-25.png`,
   "address": {
