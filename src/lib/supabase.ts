@@ -3,22 +3,28 @@ import imageCompression from "browser-image-compression";
 export async function uploadImageWithCompression(file: File, bucketName: string = "assets"): Promise<string | null> {
   try {
     const isImage = file.type.startsWith("image/");
-    if (!isImage) {
-      throw new Error("Only image files are allowed.");
+    const isVideo = file.type.startsWith("video/");
+    
+    if (!isImage && !isVideo) {
+      throw new Error("Only image and video files are allowed.");
     }
 
     const fileExt = file.name.split('.').pop()?.toLowerCase();
-    const allowedExtensions = ["jpg", "jpeg", "png", "webp"];
+    const allowedExtensions = ["jpg", "jpeg", "png", "webp", "mp4", "webm", "ogg"];
     if (!fileExt || !allowedExtensions.includes(fileExt)) {
-      throw new Error("Invalid image extension. Allowed: jpg, jpeg, png, webp.");
+      throw new Error(`Invalid file extension: ${fileExt}. Allowed: jpg, jpeg, png, webp, mp4, webm, ogg.`);
     }
 
-    const options = {
-      maxSizeMB: 1, // Max size 1MB
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-    const fileToUpload = await imageCompression(file, options);
+    let fileToUpload = file;
+
+    if (isImage) {
+      const options = {
+        maxSizeMB: 1, // Max size 1MB
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      fileToUpload = await imageCompression(file, options);
+    }
 
     const formData = new FormData();
     formData.append("file", fileToUpload);
@@ -36,9 +42,9 @@ export async function uploadImageWithCompression(file: File, bucketName: string 
 
     const { url } = await res.json();
     return url;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error uploading file:", error);
-    return null;
+    throw error;
   }
 }
 

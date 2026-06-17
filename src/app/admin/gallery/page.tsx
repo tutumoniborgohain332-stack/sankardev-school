@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -49,6 +50,8 @@ export default function GalleryAdmin() {
   const toggleHero = (item: any) => {
     updateItem.mutate({ id: item.id, data: { isHero: !item.isHero } });
   };
+
+  const { toast } = useToast();
 
   const categories = ["All", "Events", "Sports", "Academic", "Infrastructure", "Others"];
   const [activeCategory, setActiveCategory] = useState("All");
@@ -90,8 +93,14 @@ export default function GalleryAdmin() {
         form.setValue("url", url);
         form.setValue("type", file.type.startsWith("video/") ? "video" : "photo");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload failed", error);
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Something went wrong while uploading.",
+        variant: "destructive",
+      });
+      e.target.value = ''; // Reset file input
     } finally {
       setIsUploading(false);
     }

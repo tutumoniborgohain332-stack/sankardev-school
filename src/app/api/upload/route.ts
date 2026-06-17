@@ -18,12 +18,13 @@ export async function POST(request: Request) {
     if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
 
     const isImage = file.type.startsWith("image/");
-    if (!isImage) return NextResponse.json({ error: "Only image files are allowed." }, { status: 400 });
+    const isVideo = file.type.startsWith("video/");
+    if (!isImage && !isVideo) return NextResponse.json({ error: "Only image and video files are allowed." }, { status: 400 });
 
     const fileExt = file.name.split('.').pop()?.toLowerCase();
-    const allowedExtensions = ["jpg", "jpeg", "png", "webp"];
+    const allowedExtensions = ["jpg", "jpeg", "png", "webp", "mp4", "webm", "ogg"];
     if (!fileExt || !allowedExtensions.includes(fileExt)) {
-      return NextResponse.json({ error: "Invalid image extension." }, { status: 400 });
+      return NextResponse.json({ error: `Invalid file extension: ${fileExt}.` }, { status: 400 });
     }
 
     const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
