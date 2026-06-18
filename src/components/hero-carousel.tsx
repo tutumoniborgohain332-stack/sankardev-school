@@ -11,12 +11,15 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
   const heroItems = galleryItems?.filter((item: any) => item.isHero) || [];
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [hasLoadedFirstImage, setHasLoadedFirstImage] = useState(false);
+  const [hasLooped, setHasLooped] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setHasLoadedFirstImage(true), 2500);
-    return () => clearTimeout(timer);
-  }, []);
+    if (currentImageIndex > 0) {
+      setHasLooped(true);
+    }
+  }, [currentImageIndex]);
+
+  const isFirstLoad = currentImageIndex === 0 && !hasLooped;
 
   useEffect(() => {
     if (heroItems.length <= 1) return;
@@ -42,10 +45,10 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
               muted
               loop
               playsInline
-              initial={!hasLoadedFirstImage ? { clipPath: "inset(0 0 100% 0)", scale: 1.02 } : { opacity: 0, scale: 1.05 }}
-              animate={!hasLoadedFirstImage ? { clipPath: "inset(0 0 0% 0)", scale: 1, zIndex: 1 } : { opacity: 1, scale: 1, zIndex: 1 }}
+              initial={isFirstLoad ? { clipPath: "inset(0 0 100% 0)", scale: 1.02 } : { opacity: 0, scale: 1.05 }}
+              animate={isFirstLoad ? { clipPath: "inset(0 0 0% 0)", scale: 1, zIndex: 1 } : { opacity: 1, scale: 1, zIndex: 1 }}
               exit={{ opacity: 0.99, zIndex: 0 }}
-              transition={!hasLoadedFirstImage ? { duration: 2, ease: "easeInOut" } : { duration: 1.5, ease: "easeInOut" }}
+              transition={isFirstLoad ? { duration: 2, ease: "easeInOut" } : { duration: 1.5, ease: "easeInOut" }}
             />
           ) : (
             <motion.img
@@ -53,10 +56,10 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
               src={heroItems[currentImageIndex]?.url}
               alt={`School Campus ${currentImageIndex + 1}`}
               className="absolute inset-0 w-full h-full object-cover"
-              initial={!hasLoadedFirstImage ? { clipPath: "inset(0 0 100% 0)", scale: 1.02 } : { opacity: 0, scale: 1.05 }}
-              animate={!hasLoadedFirstImage ? { clipPath: "inset(0 0 0% 0)", scale: 1, zIndex: 1 } : { opacity: 1, scale: 1, zIndex: 1 }}
+              initial={isFirstLoad ? { clipPath: "inset(0 0 100% 0)", scale: 1.02 } : { opacity: 0, scale: 1.05 }}
+              animate={isFirstLoad ? { clipPath: "inset(0 0 0% 0)", scale: 1, zIndex: 1 } : { opacity: 1, scale: 1, zIndex: 1 }}
               exit={{ opacity: 0.99, zIndex: 0 }}
-              transition={!hasLoadedFirstImage ? { duration: 2, ease: "easeInOut" } : { duration: 1.5, ease: "easeInOut" }}
+              transition={isFirstLoad ? { duration: 2, ease: "easeInOut" } : { duration: 1.5, ease: "easeInOut" }}
             />
           )}
         </AnimatePresence>
