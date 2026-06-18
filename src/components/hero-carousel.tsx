@@ -23,7 +23,8 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
   const hasImages = heroItems.length > 0;
 
   return (
-    <section className="relative h-[80vh] min-h-[500px] max-h-[800px] w-full overflow-hidden bg-black">
+    <section className="relative h-[80vh] min-h-[500px] max-h-[800px] w-full overflow-hidden bg-slate-900">
+      <div className="absolute inset-0 bg-slate-800/40 animate-pulse" />
       {hasImages ? (
         <AnimatePresence>
           {heroItems[currentImageIndex]?.type === "video" ? (
@@ -35,10 +36,10 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
               muted
               loop
               playsInline
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1, zIndex: 1 }}
+              initial={{ clipPath: "inset(0 0 100% 0)", scale: 1.02 }}
+              animate={{ clipPath: "inset(0 0 0% 0)", scale: 1, zIndex: 1 }}
               exit={{ opacity: 0.99, zIndex: 0 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
+              transition={{ duration: 2, ease: "easeInOut" }}
             />
           ) : (
             <motion.img
@@ -46,10 +47,10 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
               src={heroItems[currentImageIndex]?.url}
               alt={`School Campus ${currentImageIndex + 1}`}
               className="absolute inset-0 w-full h-full object-cover"
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1, zIndex: 1 }}
+              initial={{ clipPath: "inset(0 0 100% 0)", scale: 1.02 }}
+              animate={{ clipPath: "inset(0 0 0% 0)", scale: 1, zIndex: 1 }}
               exit={{ opacity: 0.99, zIndex: 0 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
+              transition={{ duration: 2, ease: "easeInOut" }}
             />
           )}
         </AnimatePresence>
