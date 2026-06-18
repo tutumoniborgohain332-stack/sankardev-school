@@ -63,6 +63,21 @@ export default async function Home() {
         </div>
       </FadeIn>
 
+      {/* About Us Section for SEO */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 max-w-4xl text-center">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-6">About Sankardev Sishu Vidya Niketan</h2>
+          <p className="text-muted-foreground text-lg mb-10 leading-relaxed">
+            Sankardev Sishu Vidya Niketan Mathurapur is a premier educational institution under Shishu Shiksha Samiti, Assam. Established to foster academic excellence, cultural values, and discipline, we serve students from Charaideo and Sivasagar districts. Our curriculum blends traditional wisdom with modern education practices, emphasizing both scholastic achievement and character development. We maintain rigorous academic standards while nurturing cultural heritage and instilling strong ethical values in our students.
+          </p>
+
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">Our Mission</h2>
+          <p className="text-muted-foreground text-lg leading-relaxed">
+            To provide quality education that develops confident, disciplined, and culturally-aware individuals prepared for future success.
+          </p>
+        </div>
+      </section>
+
       {/* Notice Board — Bilingual */}
       <section className="py-20 bg-muted/20">
         <div className="container mx-auto px-4">

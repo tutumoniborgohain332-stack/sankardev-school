@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     default: "Sankardev Sishu Vidya Niketan, Mathurapur",
     template: "%s | SSVN Mathurapur"
   },
-  description: "Official website of Sankardev Sishu Vidya Niketan Mathurapur. Fostering excellence in education, culture, and discipline under Shishu Shiksha Samiti, Assam. Recognized as a top educational institution serving Charaideo and Sivasagar districts.",
+  description: "Official website of Sankardev Sishu Vidya Niketan Mathurapur. Fostering excellence in education, culture, and discipline in Charaideo district.",
   keywords: [
     "Mathurapure",
     "Sankardev",
@@ -46,6 +46,9 @@ export const metadata: Metadata = {
   authors: [{ name: "SSVN Mathurapur" }],
   creator: "SSVN Mathurapur",
   metadataBase: new URL(BASE_URL),
+  alternates: {
+    canonical: BASE_URL,
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",

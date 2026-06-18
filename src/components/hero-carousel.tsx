@@ -66,10 +66,10 @@ export function HeroCarousel({ admissionOpen }: { admissionOpen: boolean }) {
           transition={{ delay: 0.2, duration: 0.8 }}
           className="max-w-4xl mx-auto p-4 md:p-8"
         >
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif text-white mb-4 drop-shadow-lg">
-            <span className="sr-only">Sankardev Sishu Vidya Niketan, Mathurapur</span>
-            <span aria-hidden="true">শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ</span>
-          </h1>
+          <h1 className="sr-only">Sankardev Sishu Vidya Niketan, Mathurapur</h1>
+          <div className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif text-white mb-4 drop-shadow-lg" aria-hidden="true">
+            শংকৰদেৱ শিশু নিকেতন মথুৰাপুৰ
+          </div>
           <h2 className="text-2xl md:text-3xl text-white/95 mb-3 font-serif">Sankardev Sishu Vidya Niketan Mathurapur</h2>
           <span className="text-xl md:text-2xl text-primary font-bold block mb-4 uppercase tracking-[0.2em]">Mathurapur</span>
           
