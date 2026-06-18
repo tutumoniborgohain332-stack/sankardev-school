@@ -11,7 +11,8 @@ export function Footer() {
             </h2>
             <h3 className="text-lg font-semibold mb-4">Sankardev Sishu Vidya Niketan Mathurapur</h3>
             <p className="max-w-md text-primary-foreground/80 leading-relaxed">
-              
+              Recognized as one of the best Sankardev Niketan schools in Charaideo district. 
+              We are committed to delivering excellence in education, culture, and discipline.
             </p>
           </div>
           
